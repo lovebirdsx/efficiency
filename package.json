@@ -2,7 +2,7 @@
   "name": "efficiency",
   "displayName": "Efficiency",
   "description": "Tools to improve your efficiency",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "lovebird",
   "icon": "images/efficiency.png",
   "repository": {
@@ -21,11 +21,11 @@
     "commands": [
       {
         "command": "efficiency.convertToEnglishPunctuation",
-        "title": "efficiency: Convert To English Punctuation"
+        "title": "Efficiency: Convert To English Punctuation"
       },
       {
         "command": "efficiency.convertToChinesePunctuation",
-        "title": "efficiency: Convert To Chinese Punctuation"
+        "title": "Efficiency: Convert To Chinese Punctuation"
       }
     ]
   },
