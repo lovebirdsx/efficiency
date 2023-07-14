@@ -39,3 +39,18 @@ export function convertToEnglishPunctuation() {
 export function convertToChinesePunctuation() {
     convert('zh');
 }
+
+export function deleteCurrentFile() {
+    // Delete the current file
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+
+    const document = editor.document;
+    const uri = document.uri;
+    vscode.workspace.fs.delete(uri);
+
+    // Close the current file
+    vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+}

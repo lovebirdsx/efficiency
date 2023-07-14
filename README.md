@@ -1,14 +1,11 @@
 # README
 
-My personal use extension for VSCode.
+Useful Command for VSCode.
 
 ## Features
 
-- `Efficiency: Convert To English Punctuation` - Converts all punctuation to English punctuation
-- `Efficiency: Convert To Chinese Punctuation` - Converts all punctuation to Chinese punctuation
-
-## Release Notes
-
-### 1.0.0
-
-Initial release 
+| Command                                      | Description                                     |
+| -------------------------------------------- | ----------------------------------------------- |
+| `Efficiency: Convert To English Punctuation` | Converts all punctuation to English punctuation |
+| `Efficiency: Convert To Chinese Punctuation` | Converts all punctuation to Chinese punctuation |
+| `Efficiency: Delete Current File`            | Delete current file                             |
