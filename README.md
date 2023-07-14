@@ -8,4 +8,3 @@ Useful Command for VSCode.
 | -------------------------------------------- | ----------------------------------------------- |
 | `Efficiency: Convert To English Punctuation` | Converts all punctuation to English punctuation |
 | `Efficiency: Convert To Chinese Punctuation` | Converts all punctuation to Chinese punctuation |
-| `Efficiency: Delete Current File`            | Delete current file                             |

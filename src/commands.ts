@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import trash from 'trash';
 import { PunctuationConverter } from './common/punctuationConverter';
 
 function convert(lang: 'en' | 'zh') {
@@ -39,14 +38,4 @@ export function convertToEnglishPunctuation() {
 
 export function convertToChinesePunctuation() {
     convert('zh');
-}
-
-export async function deleteCurrentFile() {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        return;
-    }
-    
-    await trash(editor.document.fileName,);
-    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
 }
