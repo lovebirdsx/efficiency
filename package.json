@@ -2,7 +2,7 @@
   "name": "efficiency",
   "displayName": "Efficiency",
   "description": "Tools to improve your efficiency",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "lovebird",
   "icon": "images/efficiency.png",
   "repository": {
@@ -26,6 +26,10 @@
       {
         "command": "efficiency.convertToChinesePunctuation",
         "title": "Efficiency: Convert To Chinese Punctuation"
+      },
+      {
+        "command": "efficiency.generateMarkdownTable",
+        "title": "Efficiency: Generate Markdown Table"
       }
     ]
   },
