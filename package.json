@@ -1,8 +1,8 @@
 {
-  "name": "efficiency",
-  "displayName": "Efficiency",
+  "name": "lovebird-efficiency",
+  "displayName": "efficiency",
   "description": "Tools to improve your efficiency",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "publisher": "lovebird",
   "icon": "images/efficiency.png",
   "repository": {
@@ -10,7 +10,7 @@
     "url": "https://github.com/lovebirdsx/efficiency.git"
   },
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.96.0"
   },
   "categories": [
     "Other"
@@ -34,34 +34,30 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
+    "vscode:prepublish": "yarn run package",
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
-    "mocha": "mocha"
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
-    "@types/glob": "^8.1.0",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "20.2.5",
-    "@types/vscode": "^1.80.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.8",
-    "@typescript-eslint/parser": "^5.59.8",
-    "@vscode/test-electron": "^2.3.2",
-    "chai": "^4.3.7",
-    "eslint": "^8.41.0",
-    "glob": "^8.1.0",
-    "mocha": "^10.2.0",
-    "ts-loader": "^9.4.3",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "webpack": "^5.85.0",
-    "webpack-cli": "^5.1.1"
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/sinon": "^17.0.3",
+    "@types/vscode": "^1.96.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.16.0",
+    "sinon": "^19.0.2",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
   }
 }

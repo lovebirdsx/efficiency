@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { PunctuationConverter } from './common/punctuationConverter';
 import { Markdown } from './common/markdown';
 
-
 function convert(lang: 'en' | 'zh') {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {

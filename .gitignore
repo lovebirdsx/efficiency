@@ -3,3 +3,4 @@ dist
 out
 tmp
 *.vsix
+.vscode-test
