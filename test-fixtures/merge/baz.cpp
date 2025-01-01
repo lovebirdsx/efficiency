@@ -1,0 +1,3 @@
+void Baz::foo()
+{
+}

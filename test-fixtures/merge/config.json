@@ -1,0 +1,9 @@
+{
+  "type": "mergeFile",
+  "paths": [
+    "merge/bar",
+    "merge/foo",
+    "merge/baz.cpp"
+  ],
+  "output": "merge/output.md"
+}

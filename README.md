@@ -25,3 +25,11 @@ eg.
 | ---- | --- |
 |      |     |
 ```
+
+### Efficiency: Create Merge Config File
+
+Create a merge config file for the `Merge Paths To Single File` command.
+
+### Efficiency: Merge Paths To Single File
+
+Merge all paths in the config file to a single file.

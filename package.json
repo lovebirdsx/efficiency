@@ -1,6 +1,6 @@
 {
-  "name": "lovebird-efficiency",
-  "displayName": "efficiency",
+  "name": "efficiency",
+  "displayName": "Efficiency",
   "description": "Tools to improve your efficiency",
   "version": "1.0.7",
   "publisher": "lovebird",
@@ -30,6 +30,14 @@
       {
         "command": "efficiency.generateMarkdownTable",
         "title": "Efficiency: Generate Markdown Table"
+      },
+      {
+        "command": "efficiency.createMergeConfig",
+        "title": "Efficiency: Create Merge Config File"
+      },
+      {
+        "command": "efficiency.mergePaths",
+        "title": "Efficiency: Merge Paths To Single File"
       }
     ]
   },

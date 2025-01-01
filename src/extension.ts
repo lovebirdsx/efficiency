@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { convertToChinesePunctuation, convertToEnglishPunctuation, generateMarkdownTable } from './commands';
+import { convertToChinesePunctuation, convertToEnglishPunctuation, createMergeConfig, generateMarkdownTable, mergePaths } from './commands';
 
 export function activate(context: vscode.ExtensionContext) {
 	function registerCommand(name: string, callback: (...args: any[]) => any, thisArg?: any): void {
@@ -10,6 +10,8 @@ export function activate(context: vscode.ExtensionContext) {
 	registerCommand('efficiency.convertToEnglishPunctuation', convertToEnglishPunctuation);
 	registerCommand('efficiency.convertToChinesePunctuation', convertToChinesePunctuation);
 	registerCommand('efficiency.generateMarkdownTable', generateMarkdownTable);
+	registerCommand('efficiency.createMergeConfig', createMergeConfig);
+	registerCommand('efficiency.mergePaths', mergePaths);
 }
 
 export function deactivate() {}
