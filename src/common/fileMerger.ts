@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 function isTextFile(filePath: string): boolean {
-    const textExts: string[] = ['.txt', '.md', '.py', '.h', '.ts', '.c', '.cpp', '.cs', '.java', '.html', '.css', '.js'];
+    const textExts: string[] = ['.txt', '.md', '.py', '.h', '.ts', '.c', '.cpp', '.cs', '.java', '.html', '.css', '.js', '.json'];
     const fileExt = path.extname(filePath).toLowerCase();
     return textExts.includes(fileExt);
 }
@@ -20,7 +20,8 @@ function getMarkdownCodeBlock(fileExt: string): string {
         '.java': 'java',
         '.html': 'html',
         '.css': 'css',
-        '.js': 'javascript'
+        '.js': 'javascript',
+        '.json': 'json'
     };
     return extToLang[fileExt] || '';
 }
