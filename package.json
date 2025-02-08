@@ -2,7 +2,7 @@
   "name": "efficiency",
   "displayName": "Efficiency",
   "description": "Tools to improve your efficiency",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "publisher": "lovebird",
   "icon": "images/efficiency.png",
   "repository": {
@@ -18,6 +18,23 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": [
+      {
+        "title": "Efficiency",
+        "properties": {
+          "efficiency.deepSeekApiKey": {
+            "type": "string",
+            "default": "",
+            "description": "DeepSeek API Key"
+          },
+          "efficiency.aiumApiKey": {
+            "type": "string",
+            "default": "",
+            "description": "AIUM API Key"
+          }
+        }
+      }
+    ],
     "commands": [
       {
         "command": "efficiency.convertToEnglishPunctuation",
@@ -38,6 +55,30 @@
       {
         "command": "efficiency.mergePaths",
         "title": "Efficiency: Merge Paths To Single File"
+      },
+      {
+        "command": "efficiency.askDeepSeekTalk",
+        "title": "Efficiency: Ask Deep Seek By Selection - Use Talk Model"
+      },
+      {
+        "command": "efficiency.askDeepSeekReasoner",
+        "title": "Efficiency: Ask Deep Seek By Selection - Use Reasoner Model"
+      },
+      {
+        "command": "efficiency.askAiumGpt4o",
+        "title": "Efficiency: Ask AIUM By Selection - Use GPT-4o Model"
+      },
+      {
+        "command": "efficiency.askAiumGpt4oMini",
+        "title": "Efficiency: Ask AIUM By Selection - Use GPT-4o Mini Model"
+      },
+      {
+        "command": "efficiency.askAiumO1",
+        "title": "Efficiency: Ask AIUM By Selection - Use O1 Model"
+      },
+      {
+        "command": "efficiency.askAiumO1Mini",
+        "title": "Efficiency: Ask AIUM By Selection - Use O1 Mini Model"
       }
     ]
   },
@@ -67,5 +108,8 @@
     "typescript": "^5.7.2",
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "openai": "^4.83.0"
   }
 }
