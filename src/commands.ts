@@ -214,8 +214,8 @@ async function appendText(editor: vscode.TextEditor, insertionPos: vscode.Positi
 
 export interface AskAiBySelectionOptions {
     apiKeyInConfiguireName: string;
-    baseUrl: string;
-    model: string;
+    baseUrlInConfiguireName: string;
+    modelInConfiguireName: string;
 }
 
 /**
@@ -236,83 +236,85 @@ async function askAiBySelection(options: AskAiBySelectionOptions) {
         return;
     }
 
-    // 确定答案插入位置：在问题区域的末尾，如果当前行非空则先插入换行符
-    let insertionPos = range.end;
-    const currentLine = editor.document.lineAt(insertionPos);
-    if (currentLine.text.trim() !== '') {
-        await editor.edit(editBuilder => {
-            editBuilder.insert(insertionPos, '\n\n');
-        });
-        insertionPos = new vscode.Position(insertionPos.line + 2, 0);
-    }
-
     const apiKey = vscode.workspace.getConfiguration('efficiency').get(options.apiKeyInConfiguireName) as string;
     if (!apiKey) {
         vscode.window.showInformationMessage(`Please set the API key {efficiency.${options.apiKeyInConfiguireName}} in the settings!`);
         return;
     }
 
-    vscode.commands.executeCommand('setContext', 'deepSeekProcessing', true);
-
+    const baseUrl = vscode.workspace.getConfiguration('efficiency').get(options.baseUrlInConfiguireName) as string;
+    const model = vscode.workspace.getConfiguration('efficiency').get(options.modelInConfiguireName) as string;
+    let insertionPos = range.end;
     try {
-        await askAi({ baseUrl: options.baseUrl, question, apiKey, model: options.model }, async (chunk: string) => {
+        vscode.window.setStatusBarMessage(`Asking ${baseUrl} mode: ${model}...`, 50 * 1000);
+        let messageArrived = false;
+        await askAi({ baseUrl, question, apiKey, model }, async (chunk: string) => {
+            if (!messageArrived) {
+                messageArrived = true;
+                vscode.window.setStatusBarMessage('');
+
+                // 确定答案插入位置：在问题区域的末尾，如果当前行非空则先插入换行符
+                const currentLine = editor.document.lineAt(insertionPos);
+                if (currentLine.text.trim() !== '') {
+                    await editor.edit(editBuilder => {
+                        editBuilder.insert(insertionPos, '\n\n');
+                    });
+                    insertionPos = new vscode.Position(insertionPos.line + 2, 0);
+                }
+            }
+
             insertionPos = await appendText(editor, insertionPos, chunk);
         });
     } catch (error: any) {
-        vscode.window.showErrorMessage('Ask DeepSeek failed: ' + error);
+        vscode.window.setStatusBarMessage(`Ask ${baseUrl} mode: ${model} failed: ${error}`, 5 * 1000);
+        vscode.window.showErrorMessage(`${error}\nAsk ${baseUrl}\n mode: ${model}`);
     }
-
-    vscode.commands.executeCommand('setContext', 'deepSeekProcessing', false);
 }
-
-const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 
 export function askDeepSeekTalk() {
     askAiBySelection({
         apiKeyInConfiguireName: 'deepSeekApiKey',
-        baseUrl: DEEPSEEK_BASE_URL,
-        model: 'deepseek-chat',
+        baseUrlInConfiguireName: 'deepSeekBaseUrl',
+        modelInConfiguireName: 'deepSeekTalkModeId',
     });
 }
 
 export function askDeepSeekReasoner() {
     askAiBySelection({
         apiKeyInConfiguireName: 'deepSeekApiKey',
-        baseUrl: DEEPSEEK_BASE_URL,
-        model: 'deepseek-reasoner',
+        baseUrlInConfiguireName: 'deepSeekBaseUrl',
+        modelInConfiguireName: 'deepSeekReasonerModeId',
     });
 }
 
-const AIUM_BASE_URL = 'https://aium.cc/v1/';
-
-export function askAiumGpt4o() {
+export function askChatGptTalk() {
     askAiBySelection({
-        apiKeyInConfiguireName: 'aiumApiKey',
-        baseUrl: AIUM_BASE_URL,
-        model: 'gpt-4o',
+        apiKeyInConfiguireName: 'chatgptApiKey',
+        baseUrlInConfiguireName: 'chatgptBaseUrl',
+        modelInConfiguireName: 'chatgptTalkModelId',
     });
 }
 
-export function askAiumGpt4oMini() {
+export function askChatGptTalkMini() {
     askAiBySelection({
-        apiKeyInConfiguireName: 'aiumApiKey',
-        baseUrl: AIUM_BASE_URL,
-        model: 'gpt-4o-mini',
+        apiKeyInConfiguireName: 'chatgptApiKey',
+        baseUrlInConfiguireName: 'chatgptBaseUrl',
+        modelInConfiguireName: 'chatgptTalkMiniModelId',
     });
 }
 
-export function askAiumO1() {
+export function askChatGptReasoner() {
     askAiBySelection({
-        apiKeyInConfiguireName: 'aiumApiKey',
-        baseUrl: AIUM_BASE_URL,
-        model: 'gpt-o1',
+        apiKeyInConfiguireName: 'chatgptApiKey',
+        baseUrlInConfiguireName: 'chatgptBaseUrl',
+        modelInConfiguireName: 'chatgptReasonerModelId',
     });
 }
 
-export function askAiumO1Mini() {
+export function askChatGptReasonerMini() {
     askAiBySelection({
-        apiKeyInConfiguireName: 'aiumApiKey',
-        baseUrl: AIUM_BASE_URL,
-        model: 'gpt-o1-mini',
+        apiKeyInConfiguireName: 'chatgptApiKey',
+        baseUrlInConfiguireName: 'chatgptBaseUrl',
+        modelInConfiguireName: 'chatgptReasonerMiniModelId',
     });
 }
