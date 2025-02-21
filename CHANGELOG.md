@@ -1,9 +1,7 @@
 # Change Log
 
-All notable changes to the "lovebird-efficiency" extension will be documented in this file.
+## [1.1.2] - 2025-02-21
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+### Changed
 
-## [Unreleased]
-
-- Initial release
+* `Merge Paths To Single File` command output filename includes subfolder name.

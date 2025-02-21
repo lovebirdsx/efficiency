@@ -1,29 +1,31 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+const extConfig: { [ext: string]: string } = {
+    '.txt': 'text',
+    '.md': 'markdown',
+    '.py': 'python',
+    '.h': 'cpp',
+    '.ts': 'typescript',
+    '.c': 'c',
+    '.cpp': 'cpp',
+    '.cs': 'csharp',
+    '.java': 'java',
+    '.html': 'html',
+    '.css': 'css',
+    '.js': 'javascript',
+    '.json': 'json',
+}
+
+const textExts = Object.keys(extConfig);
+
 function isTextFile(filePath: string): boolean {
-    const textExts: string[] = ['.txt', '.md', '.py', '.h', '.ts', '.c', '.cpp', '.cs', '.java', '.html', '.css', '.js', '.json'];
     const fileExt = path.extname(filePath).toLowerCase();
     return textExts.includes(fileExt);
 }
 
 function getMarkdownCodeBlock(fileExt: string): string {
-    const extToLang: { [key: string]: string } = {
-        '.txt': 'text',
-        '.md': 'markdown',
-        '.py': 'python',
-        '.h': 'cpp',
-        '.ts': 'typescript',
-        '.c': 'c',
-        '.cpp': 'cpp',
-        '.cs': 'csharp',
-        '.java': 'java',
-        '.html': 'html',
-        '.css': 'css',
-        '.js': 'javascript',
-        '.json': 'json'
-    };
-    return extToLang[fileExt] || '';
+    return extConfig[fileExt] ?? 'plaintext';
 }
 
 /**
@@ -49,16 +51,17 @@ export function concatTextFiles(paths: string[], outputFile: string): Promise<vo
             resolve();
         });
 
-        const writeFile = (filePath: string) => {
+        const writeFile = (filePath: string, base?: string) => {
             const fileName = path.basename(filePath);
             const fileExt = path.extname(filePath).toLowerCase();
             const lang = getMarkdownCodeBlock(fileExt);
-            outputStream.write(`## ${fileName}\n\n\`\`\` ${lang}\n`);
+            const relativePath = base ? `${base}/${fileName}` : fileName;
+            outputStream.write(`## ${relativePath}\n\n\`\`\` ${lang}\n`);
             outputStream.write(fs.readFileSync(filePath, 'utf-8') + '\n');
             outputStream.write('```\n\n');
         }
 
-        function processPath(targetPath: string) {
+        function processPath(targetPath: string, base?: string) {
             const stat = fs.statSync(targetPath);
             if (stat.isDirectory()) {
                 const files = fs.readdirSync(targetPath);
@@ -66,13 +69,13 @@ export function concatTextFiles(paths: string[], outputFile: string): Promise<vo
                     const filePath = path.join(targetPath, file);
                     const fileStat = fs.statSync(filePath);
                     if (fileStat.isDirectory()) {
-                        processPath(filePath);
+                        processPath(filePath, base ? `${base}/${file}` : file);
                     } else if (isTextFile(file)) {
-                        writeFile(filePath);
+                        writeFile(filePath, base);
                     }
                 }
             } else if (stat.isFile() && isTextFile(targetPath)) {
-                writeFile(targetPath);
+                writeFile(targetPath, base);
             }
         }
 

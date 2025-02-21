@@ -58,7 +58,7 @@ suite('concatTextFiles', function () {
             '## file1.ts\n\n``` typescript\n' +
             'console.log("File1");\n' +
             '```\n\n' +
-            '## file2.md\n\n``` markdown\n' +
+            '## subdir/file2.md\n\n``` markdown\n' +
             '# File2\n' +
             '```\n\n');
     });
