@@ -60,3 +60,16 @@ Select Text `Name, Age`, Will change to below
 
 * `Efficiency: Create Merge Config File`: Create a merge config file for the `Merge Paths To Single File` command.
 * `Efficiency: Merge Paths To Single File`: Merge all paths in the config file to a single file.
+
+## 5. Misc
+
+### 5.1 Open External Shell
+
+**Settings:**
+
+* `efficiency.defaultShell`: Default shell command to open external terminal, default is `sh.exe --login -i`
+
+**Commands:**
+
+* `efficiency.openExternalShellByWorkspaceFolder`: Open external shell by workspace folder
+* `efficiency.openExternalShellByCurrentFile`: Open external shell by current file

@@ -1,11 +1,43 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { spawn } from 'child_process';
 
 import { PunctuationConverter } from './common/punctuationConverter';
 import { Markdown } from './common/markdown';
 import { concatTextFiles } from './common/fileMerger';
 import { askAi } from './common/ai';
+
+function openExternalShellByDir(dir: string) {
+    const shell = vscode.workspace.getConfiguration('efficiency').get('defaultShell') as string;
+    if (!shell) {
+        vscode.window.showInformationMessage('Please set the default shell path in the settings!');
+        return;
+    }
+
+    spawn(shell, { cwd: dir, detached: true, shell: true,}).unref();
+}
+
+export function openExternalShellByWorkspaceFolder() {
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+        vscode.window.showInformationMessage('No workspace is opened!');
+        return;
+    }
+
+    const dir = path.dirname(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    openExternalShellByDir(dir);
+}
+
+export function openExternalShellFromActiveFile() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showInformationMessage('No active editor!');
+        return;
+    }
+    
+    const dir = path.dirname(editor.document.uri.fsPath);
+    openExternalShellByDir(dir);
+}
 
 function convert(lang: 'en' | 'zh') {
     const editor = vscode.window.activeTextEditor;

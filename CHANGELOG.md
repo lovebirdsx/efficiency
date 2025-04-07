@@ -5,3 +5,9 @@
 ### Changed
 
 * `Merge Paths To Single File` command output filename includes subfolder name.
+
+## [1.1.3] - 2025-04-07
+
+### Added
+
+* Open External Shell Commands
