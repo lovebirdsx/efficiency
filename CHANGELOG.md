@@ -17,3 +17,9 @@
 ### Fixed
 
 * Fixed `efficiency.openExternalShellByWorkspaceFolder`
+
+## [1.1.5] - 2025-04-15
+
+### Fixed
+
+* Fixed registration issue

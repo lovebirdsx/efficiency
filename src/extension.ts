@@ -10,7 +10,6 @@ export function activate(context: vscode.ExtensionContext) {
 	registerCommand('efficiency.openExternalShellByWorkspaceFolder', openExternalShellByWorkspaceFolder);
 	registerCommand('efficiency.openExternalShellByCurrentFile', openExternalShellFromActiveFile);
 	registerCommand('efficiency.convertToEnglishPunctuation', convertToEnglishPunctuation);
-	registerCommand('efficiency.convertToEnglishPunctuation', convertToEnglishPunctuation);
 	registerCommand('efficiency.convertToChinesePunctuation', convertToChinesePunctuation);
 	registerCommand('efficiency.generateMarkdownTable', generateMarkdownTable);
 	registerCommand('efficiency.createMergeConfig', createMergeConfig);
