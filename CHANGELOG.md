@@ -11,3 +11,9 @@
 ### Added
 
 * Open External Shell Commands
+
+## [1.1.4] - 2025-04-08
+
+### Fixed
+
+* Fixed `efficiency.openExternalShellByWorkspaceFolder`

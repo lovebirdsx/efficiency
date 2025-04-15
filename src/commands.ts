@@ -23,9 +23,8 @@ export function openExternalShellByWorkspaceFolder() {
         vscode.window.showInformationMessage('No workspace is opened!');
         return;
     }
-
-    const dir = path.dirname(vscode.workspace.workspaceFolders[0].uri.fsPath);
-    openExternalShellByDir(dir);
+    
+    openExternalShellByDir(vscode.workspace.workspaceFolders[0].uri.fsPath);
 }
 
 export function openExternalShellFromActiveFile() {
