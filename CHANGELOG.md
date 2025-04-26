@@ -23,3 +23,9 @@
 ### Fixed
 
 * Fixed registration issue
+
+## [1.1.6] - 2025-04-27
+
+### Fixed
+
+* Fixed text file detection issue

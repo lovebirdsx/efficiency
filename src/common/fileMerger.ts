@@ -7,6 +7,7 @@ const extConfig: { [ext: string]: string } = {
     '.py': 'python',
     '.h': 'cpp',
     '.ts': 'typescript',
+    '.tsx': 'typescript',
     '.c': 'c',
     '.cpp': 'cpp',
     '.cs': 'csharp',
@@ -15,13 +16,51 @@ const extConfig: { [ext: string]: string } = {
     '.css': 'css',
     '.js': 'javascript',
     '.json': 'json',
-}
+    '.xml': 'xml',
+    '.yaml': 'yaml',
+    '.yml': 'yaml',
+    '.sql': 'sql',
+    '.go': 'go',
+    '.sh': 'bash',
+    '.bat': 'batch',
+    '.php': 'php',
+    '.rb': 'ruby',
+    '.swift': 'swift',
+    '.r': 'r',
+    '.pl': 'perl',
+    '.lua': 'lua',
+    '.dart': 'dart',
+    '.kotlin': 'kotlin',
+    '.scala': 'scala',
+    '.groovy': 'groovy',
+    '.vb': 'vbnet',
+    '.vbproj': 'xml',
+    '.csproj': 'xml',
+    '.sln': 'xml',
+    '.xaml': 'xml',
+    '.jsonproj': 'json',
+    '.config': 'xml',
+    '.properties': 'properties',
+    '.env': 'properties',
+};
 
-const textExts = Object.keys(extConfig);
+function isTextFile(path: string, sampleSize = 512): boolean {
+    const buffer = Buffer.alloc(sampleSize);
+    const fd = fs.openSync(path, 'r');
+    const bytesRead = fs.readSync(fd, buffer, 0, sampleSize, 0);
+    fs.closeSync(fd);
 
-function isTextFile(filePath: string): boolean {
-    const fileExt = path.extname(filePath).toLowerCase();
-    return textExts.includes(fileExt);
+    let nonText = 0;
+    for (let i = 0; i < bytesRead; i++) {
+        const byte = buffer[i];
+        // Allow \n, \r, \t and 0x20–0x7E (common visible characters)
+        if (byte === 0x09 || byte === 0x0A || byte === 0x0D) { continue; }
+        if (byte >= 0x20 && byte <= 0x7E) { continue; }
+        nonText++;
+    }
+
+    // If non-text characters are more than 5% of the total bytes read, consider it a binary file
+    return (nonText / bytesRead) < 0.05;
 }
 
 function getMarkdownCodeBlock(fileExt: string): string {
@@ -59,7 +98,7 @@ export function concatTextFiles(paths: string[], outputFile: string): Promise<vo
             outputStream.write(`## ${relativePath}\n\n\`\`\` ${lang}\n`);
             outputStream.write(fs.readFileSync(filePath, 'utf-8') + '\n');
             outputStream.write('```\n\n');
-        }
+        };
 
         function processPath(targetPath: string, base?: string) {
             const stat = fs.statSync(targetPath);
@@ -70,7 +109,7 @@ export function concatTextFiles(paths: string[], outputFile: string): Promise<vo
                     const fileStat = fs.statSync(filePath);
                     if (fileStat.isDirectory()) {
                         processPath(filePath, base ? `${base}/${file}` : file);
-                    } else if (isTextFile(file)) {
+                    } else if (isTextFile(filePath)) {
                         writeFile(filePath, base);
                     }
                 }
