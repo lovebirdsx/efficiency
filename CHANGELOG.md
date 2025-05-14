@@ -29,3 +29,8 @@
 ### Fixed
 
 * Fixed text file detection issue
+
+## [1.1.7] - 2025-05-15
+
+* Remove commands of ai
+* Support ignores for `Merge Paths To Single File` command

@@ -2,7 +2,7 @@
   "name": "efficiency",
   "displayName": "Efficiency",
   "description": "Tools to improve your efficiency",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "publisher": "lovebird",
   "icon": "images/efficiency.png",
   "repository": {
@@ -70,7 +70,8 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/json5": "^2.2.0",
