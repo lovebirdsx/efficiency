@@ -163,6 +163,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "ignore": "^7.0.4",
     "openai": "^4.83.0"
   }
 }

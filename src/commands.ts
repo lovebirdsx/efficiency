@@ -108,9 +108,11 @@ export function generateMarkdownTable() {
 }
 
 interface IMergeFileOptions {
-    type: 'mergeFile',
-    paths: string[],
-    output: string,
+    type: 'mergeFile';
+    paths: string[];
+    output: string;
+    ignoreGit?: boolean;
+    includeHidden?: boolean;
 }
 
 export function createMergeConfig() {
@@ -135,7 +137,9 @@ export function createMergeConfig() {
     const defalutConfig: IMergeFileOptions = {
         type: 'mergeFile',
         paths: [],
-        output: ''
+        output: '',
+        ignoreGit: false,
+        includeHidden: false,
     };
     fs.writeFileSync(filePath, JSON.stringify(defalutConfig, null, 4));
 }

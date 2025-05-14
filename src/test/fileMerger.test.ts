@@ -8,28 +8,28 @@ suite('concatTextFiles', function () {
     let tempDir: string;
     let outputFile: string;
 
-    setup(function() {
+    setup(function () {
         tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fileMerger-'));
         outputFile = path.join(tempDir, 'output.md');
     });
 
-    teardown(function() {
+    teardown(function () {
         fs.rmSync(tempDir, { recursive: true, force: true });
     });
 
     test('should concatenate multiple text files into the output file', async function () {
         const file1 = path.join(tempDir, 'file1.ts');
         const file2 = path.join(tempDir, 'file2.md');
-        
+
         fs.writeFileSync(file1, 'console.log("File1");');
         fs.writeFileSync(file2, '# File2');
 
         await concatTextFiles([file1, file2], outputFile);
-        
+
         const outputContent = fs.readFileSync(outputFile, 'utf-8');
-        
+
         assert.strictEqual(fs.existsSync(outputFile), true);
-        assert.strictEqual(outputContent, 
+        assert.strictEqual(outputContent,
             '## file1.ts\n\n``` typescript\n' +
             'console.log("File1");\n' +
             '```\n\n' +
@@ -43,18 +43,18 @@ suite('concatTextFiles', function () {
         const subdir = path.join(dir, 'subdir');
         const file1 = path.join(dir, 'file1.ts');
         const file2 = path.join(subdir, 'file2.md');
-        
+
         fs.mkdirSync(subdir, { recursive: true });
-        
+
         fs.writeFileSync(file1, 'console.log("File1");');
         fs.writeFileSync(file2, '# File2');
 
         await concatTextFiles([dir], outputFile);
-        
+
         const outputContent = fs.readFileSync(outputFile, 'utf-8');
-        
+
         assert.strictEqual(fs.existsSync(outputFile), true);
-        assert.strictEqual(outputContent, 
+        assert.strictEqual(outputContent,
             '## file1.ts\n\n``` typescript\n' +
             'console.log("File1");\n' +
             '```\n\n' +
@@ -66,16 +66,23 @@ suite('concatTextFiles', function () {
     test('should skip non-text files', async function () {
         const file1 = path.join(tempDir, 'file1.ts');
         const image = path.join(tempDir, 'image.png');
-        
+
         fs.writeFileSync(file1, 'console.log("File1");');
-        fs.writeFileSync(image, 'binarydata');
+
+        const pngHeader = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+        const randomBytes = Buffer.alloc(1024);
+        for (let i = 0; i < randomBytes.length; i++) {
+            randomBytes[i] = Math.floor(Math.random() * 256);
+        }
+        const pngData = Buffer.concat([pngHeader, randomBytes]);
+        fs.writeFileSync(image, pngData);
 
         await concatTextFiles([file1, image], outputFile);
 
         const outputContent = fs.readFileSync(outputFile, 'utf-8');
 
         assert.strictEqual(fs.existsSync(outputFile), true);
-        assert.strictEqual(outputContent, 
+        assert.strictEqual(outputContent,
             '## file1.ts\n\n``` typescript\n' +
             'console.log("File1");\n' +
             '```\n\n');

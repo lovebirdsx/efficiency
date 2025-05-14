@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import ignore, { Ignore } from 'ignore';
 
 const extConfig: { [ext: string]: string } = {
     '.txt': 'text',
@@ -67,6 +68,116 @@ function getMarkdownCodeBlock(fileExt: string): string {
     return extConfig[fileExt] ?? 'plaintext';
 }
 
+export interface ConcatOptions {
+    /** If true, patterns from the nearest .gitignore will be applied. */
+    ignoreGit?: boolean;
+
+    /** If true, include hidden files and directories in the concatenation process. */
+    includeHidden?: boolean;
+
+    /** A list of paths to ignore during the concatenation process. */
+    ignorePaths?: string[];
+}
+
+interface IgnoreInfo {
+    ig: Ignore;
+    baseDir: string;
+}
+
+/**
+ * Returns an array of file paths to be concatenated.
+ *
+ * @param paths - An array of file or directory paths to process.
+ * @param options - Options for the concatenation process.
+ * @returns An array of file paths to be concatenated.
+ */
+export async function getFilesToConcat(
+    paths: string[],
+    options: ConcatOptions = {}
+): Promise<string[]> {
+    const { ignoreGit = false, includeHidden = false, ignorePaths = [] } = options;
+    const ignoreCache: Map<string, IgnoreInfo | null> = new Map();
+
+    /**
+     * Load and cache the nearest .gitignore for a given directory (climbing up).
+     */
+    async function loadIgnoreInfo(dir: string): Promise<IgnoreInfo | null> {
+        if (ignoreCache.has(dir)) {
+            return ignoreCache.get(dir)!;
+        }
+        const gitignorePath = path.join(dir, '.gitignore');
+        try {
+            await fs.promises.access(gitignorePath, fs.constants.F_OK);
+            const content = await fs.promises.readFile(gitignorePath, 'utf8');
+            const ig = ignore();
+            ig.add(content.split(/\r?\n/));
+            const info: IgnoreInfo = { ig, baseDir: dir };
+            ignoreCache.set(dir, info);
+            return info;
+        } catch {
+            const parent = path.dirname(dir);
+            if (parent === dir) {
+                ignoreCache.set(dir, null);
+                return null;
+            }
+            const info = await loadIgnoreInfo(parent);
+            ignoreCache.set(dir, info);
+            return info;
+        }
+    }
+
+    /**
+     * Recursively process a path (file or directory) and collect eligible text files.
+     */
+    async function processPath(p: string): Promise<string[]> {
+        const absPath = path.resolve(p);
+        let stats: fs.Stats;
+        try {
+            stats = await fs.promises.stat(absPath);
+        } catch {
+            // Path does not exist or no permission.
+            return [];
+        }
+
+        const name = path.basename(absPath);
+        if (!includeHidden && name.startsWith('.')) {
+            return [];
+        }
+
+        if (!ignoreGit) {
+            const targetDir = stats.isDirectory() ? absPath : path.dirname(absPath);
+            const info = await loadIgnoreInfo(targetDir);
+            if (info) {
+                const rel = path.relative(info.baseDir, absPath);
+                if (rel && info.ig.ignores(rel)) {
+                    return [];
+                }
+            }
+        }
+
+        if (stats.isDirectory()) {
+            const entries = await fs.promises.readdir(absPath);
+            const nested = await Promise.all(
+                entries.map(entry => processPath(path.join(absPath, entry)))
+            );
+            return nested.flat();
+        } else if (stats.isFile()) {
+            if (!isTextFile(absPath)) {
+                return [];
+            }
+            return [absPath];
+        }
+
+        return [];
+    }
+
+    const all = await Promise.all(paths.map(p => processPath(p)));
+
+    // Deduplicate results
+    const unique = Array.from(new Set(all.flat()));
+    return unique;
+}
+
 /**
  * Concatenates multiple text files into a single output file.
  *
@@ -78,51 +189,46 @@ function getMarkdownCodeBlock(fileExt: string): string {
  * appends its content to the output file, formatted with Markdown code blocks.
  * 
  */
-export function concatTextFiles(paths: string[], outputFile: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const outputStream = fs.createWriteStream(outputFile, { encoding: 'utf-8' });
+export async function concatTextFiles(paths: string[], outputFile: string, options: ConcatOptions = {}): Promise<void> {
+    const filesToConcat = await getFilesToConcat(paths, options);
+    const baseDirs = paths.filter(p => fs.statSync(p).isDirectory()).map(p => path.resolve(p).toLocaleLowerCase());
 
-        outputStream.on('error', (err) => {
-            reject(err);
-        });
-
-        outputStream.on('finish', () => {
-            resolve();
-        });
-
-        const writeFile = (filePath: string, base?: string) => {
-            const fileName = path.basename(filePath);
-            const fileExt = path.extname(filePath).toLowerCase();
-            const lang = getMarkdownCodeBlock(fileExt);
-            const relativePath = base ? `${base}/${fileName}` : fileName;
-            outputStream.write(`## ${relativePath}\n\n\`\`\` ${lang}\n`);
-            outputStream.write(fs.readFileSync(filePath, 'utf-8') + '\n');
-            outputStream.write('```\n\n');
-        };
-
-        function processPath(targetPath: string, base?: string) {
-            const stat = fs.statSync(targetPath);
-            if (stat.isDirectory()) {
-                const files = fs.readdirSync(targetPath);
-                for (const file of files) {
-                    const filePath = path.join(targetPath, file);
-                    const fileStat = fs.statSync(filePath);
-                    if (fileStat.isDirectory()) {
-                        processPath(filePath, base ? `${base}/${file}` : file);
-                    } else if (isTextFile(filePath)) {
-                        writeFile(filePath, base);
-                    }
-                }
-            } else if (stat.isFile() && isTextFile(targetPath)) {
-                writeFile(targetPath, base);
+    const getHeaderName = (filePath: string): string => {
+        const filePathLower = (path.resolve(filePath)).toLocaleLowerCase();
+        for (const baseDir of baseDirs) {
+            if (filePathLower.startsWith(baseDir)) {
+                return path.relative(baseDir, filePath).replace(/\\/g, '/');
             }
         }
 
+        return path.basename(filePath);
+    };
+
+    return new Promise((resolve, reject) => {
         try {
-            for (const p of paths) {
-                processPath(p);
-            }
-            outputStream.end(); // 结束写入并触发 'finish' 事件
+            const outputStream = fs.createWriteStream(outputFile, { encoding: 'utf-8' });
+            outputStream.on('error', (err) => {
+                reject(err);
+            });
+
+            outputStream.on('finish', () => {
+                resolve();
+            });
+
+            const writeFile = (filePath: string) => {
+                const fileName = path.basename(filePath);
+                const fileExt = path.extname(filePath).toLowerCase();
+                const lang = getMarkdownCodeBlock(fileExt);
+                outputStream.write(`## ${getHeaderName(filePath)}\n\n\`\`\` ${lang}\n`);
+                outputStream.write(fs.readFileSync(filePath, 'utf-8') + '\n');
+                outputStream.write('```\n\n');
+            };
+        
+            filesToConcat.forEach(filePath => {
+                writeFile(filePath);
+            });
+
+            outputStream.end();
         } catch (err) {
             reject(err);
         }
