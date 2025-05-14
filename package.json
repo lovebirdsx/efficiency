@@ -26,56 +26,6 @@
             "type": "string",
             "default": "sh.exe --login -i",
             "description": "Default shell command to open external terminal"
-          },
-          "efficiency.deepSeekBaseUrl": {
-            "type": "string",
-            "default": "https://api.deepseek.com",
-            "description": "DeepSeek Base URL"
-          },
-          "efficiency.deepSeekTalkModeId": {
-            "type": "string",
-            "default": "deepseek-chat",
-            "description": "DeepSeek Talk Model ID"
-          },
-          "efficiency.deepSeekReasonerModeId": {
-            "type": "string",
-            "default": "deepseek-reasoner",
-            "description": "DeepSeek Reasoner Model ID"
-          },
-          "efficiency.deepSeekApiKey": {
-            "type": "string",
-            "default": "",
-            "description": "DeepSeek API Key"
-          },
-          "efficiency.chatgptBaseUrl": {
-            "type": "string",
-            "default": "https://aium.cc/v1/",
-            "description": "ChatGPT Base URL"
-          },
-          "efficiency.chatgptApiKey": {
-            "type": "string",
-            "default": "",
-            "description": "ChatGPT API Key"
-          },
-          "efficiency.chatgptTalkModelId": {
-            "type": "string",
-            "default": "gpt-4o",
-            "description": "ChatGPT Talk Model ID"
-          },
-          "efficiency.chatgptTalkMiniModelId": {
-            "type": "string",
-            "default": "gpt-4o-mini",
-            "description": "ChatGPT Talk Model Mini ID"
-          },
-          "efficiency.chatgptReasonerModelId": {
-            "type": "string",
-            "default": "gpt-o1",
-            "description": "ChatGPT Reasoner Model ID"
-          },
-          "efficiency.chatgptReasonerMiniModelId": {
-            "type": "string",
-            "default": "gpt-o1-mini",
-            "description": "ChatGPT Reasoner Model Mini ID"
           }
         }
       }
@@ -108,30 +58,6 @@
       {
         "command": "efficiency.mergePaths",
         "title": "Efficiency: Merge Paths To Single File"
-      },
-      {
-        "command": "efficiency.askDeepSeekTalk",
-        "title": "Efficiency: Ask Deep Seek By Selection - Use Talk Model"
-      },
-      {
-        "command": "efficiency.askDeepSeekReasoner",
-        "title": "Efficiency: Ask Deep Seek By Selection - Use Reasoner Model"
-      },
-      {
-        "command": "efficiency.askChatGptTalk",
-        "title": "Efficiency: Ask ChatGPT By Selection - Use GPT-4o Model"
-      },
-      {
-        "command": "efficiency.askChatGptTalkMini",
-        "title": "Efficiency: Ask ChatGPT By Selection - Use GPT-4o Mini Model"
-      },
-      {
-        "command": "efficiency.askChatGptReasoner",
-        "title": "Efficiency: Ask ChatGPT By Selection - Use O1 Model"
-      },
-      {
-        "command": "efficiency.askChatGptReasonerMini",
-        "title": "Efficiency: Ask ChatGPT By Selection - Use O1 Mini Model"
       }
     ]
   },
@@ -147,6 +73,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@types/json5": "^2.2.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/sinon": "^17.0.3",
@@ -164,6 +91,6 @@
   },
   "dependencies": {
     "ignore": "^7.0.4",
-    "openai": "^4.83.0"
+    "json5": "^2.2.3"
   }
 }

@@ -68,15 +68,15 @@ function getMarkdownCodeBlock(fileExt: string): string {
     return extConfig[fileExt] ?? 'plaintext';
 }
 
-export interface ConcatOptions {
+interface ConcatOptions {
     /** If true, patterns from the nearest .gitignore will be applied. */
     ignoreGit?: boolean;
 
     /** If true, include hidden files and directories in the concatenation process. */
     includeHidden?: boolean;
 
-    /** A list of paths to ignore during the concatenation process. */
-    ignorePaths?: string[];
+    /** A list of patterns to ignore during the concatenation process, like .gitignore files. */
+    ignores?: string[];
 }
 
 interface IgnoreInfo {
@@ -95,12 +95,10 @@ export async function getFilesToConcat(
     paths: string[],
     options: ConcatOptions = {}
 ): Promise<string[]> {
-    const { ignoreGit = false, includeHidden = false, ignorePaths = [] } = options;
+    const { ignoreGit = false, includeHidden = false, ignores = [] } = options;
     const ignoreCache: Map<string, IgnoreInfo | null> = new Map();
 
-    /**
-     * Load and cache the nearest .gitignore for a given directory (climbing up).
-     */
+    // Load and cache the nearest .gitignore for a given directory (climbing up).
     async function loadIgnoreInfo(dir: string): Promise<IgnoreInfo | null> {
         if (ignoreCache.has(dir)) {
             return ignoreCache.get(dir)!;
@@ -108,18 +106,34 @@ export async function getFilesToConcat(
         const gitignorePath = path.join(dir, '.gitignore');
         try {
             await fs.promises.access(gitignorePath, fs.constants.F_OK);
-            const content = await fs.promises.readFile(gitignorePath, 'utf8');
+
             const ig = ignore();
-            ig.add(content.split(/\r?\n/));
+            if (!ignoreGit) {
+                const content = await fs.promises.readFile(gitignorePath, 'utf8');
+                ig.add(content.split(/\r?\n/));
+            }
+
+            if (ignores.length > 0) {
+                ig.add(ignores);
+            }
+
             const info: IgnoreInfo = { ig, baseDir: dir };
             ignoreCache.set(dir, info);
             return info;
         } catch {
             const parent = path.dirname(dir);
             if (parent === dir) {
-                ignoreCache.set(dir, null);
-                return null;
+                if (ignores.length > 0) {
+                    const ig = ignore();
+                    ig.add(ignores);
+                    const info: IgnoreInfo = { ig, baseDir: dir };
+                    ignoreCache.set(dir, info);
+                    return info;
+                } else {
+                    return null;
+                }
             }
+
             const info = await loadIgnoreInfo(parent);
             ignoreCache.set(dir, info);
             return info;
@@ -144,7 +158,7 @@ export async function getFilesToConcat(
             return [];
         }
 
-        if (!ignoreGit) {
+        if (!ignoreGit || ignores.length > 0) {
             const targetDir = stats.isDirectory() ? absPath : path.dirname(absPath);
             const info = await loadIgnoreInfo(targetDir);
             if (info) {
