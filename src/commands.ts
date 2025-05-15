@@ -151,6 +151,11 @@ export function createMergeConfig() {
     
     // Output file path - can be absolute or relative to the workspace
     "output": "",
+
+    // Prefix strings to add to combined files
+    "prefix": [
+        // "You are a professional software engineer.",
+    ],
     
     // If true, ignore .gitignore rules (default: false)
     "ignoreGit": false,

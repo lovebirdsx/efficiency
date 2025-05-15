@@ -69,6 +69,9 @@ function getMarkdownCodeBlock(fileExt: string): string {
 }
 
 interface ConcatOptions {
+    /** Content will be prefixed with the specified strings. */
+    prefix?: string[];
+
     /** If true, patterns from the nearest .gitignore will be applied. */
     ignoreGit?: boolean;
 
@@ -228,6 +231,10 @@ export async function concatTextFiles(paths: string[], outputFile: string, optio
             outputStream.on('finish', () => {
                 resolve();
             });
+
+            if (options.prefix && options.prefix.length > 0) {
+                outputStream.write(options.prefix.join('\n') + '\n\n');
+            }
 
             const writeFile = (filePath: string) => {
                 const fileName = path.basename(filePath);
