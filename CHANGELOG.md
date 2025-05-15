@@ -34,3 +34,7 @@
 
 * Remove commands of ai
 * Support ignores for `Merge Paths To Single File` command
+
+## [1.1.8] - 2025-05-15
+
+* Support prefix for `Merge Paths To Single File` command
