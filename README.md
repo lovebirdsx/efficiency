@@ -39,3 +39,11 @@ Merge multiple files into one file, which is useful for making context for ask a
 
 * `efficiency.openExternalShellByWorkspaceFolder`: Open external shell by workspace folder
 * `efficiency.openExternalShellByCurrentFile`: Open external shell by current file
+
+### 4.2. Auto Change Windows Path Separator
+
+Automatically change windows path separator when pasting paths.
+
+**Settings:**
+
+* `efficiency.pastePathConvert.enabled`: Enable auto change path separator when pasting paths, default is `true`
