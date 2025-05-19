@@ -38,3 +38,7 @@
 ## [1.1.8] - 2025-05-15
 
 * Support prefix for `Merge Paths To Single File` command
+
+## [1.1.9] - 2025-05-19
+
+* Support Auto change windows path separator when pasting paths
