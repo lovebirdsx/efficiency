@@ -73,17 +73,11 @@ export function isText(buff: Buffer): boolean {
 }
 
 function isTextFile(filePath: string, sampleSize = 512): boolean {
-    const ext = '.' + path.extname(filePath).toLowerCase();
-    if (extConfig[ext]) {
-        return true;
-    }
-
     const buffer = Buffer.alloc(sampleSize);
     const fd = fs.openSync(filePath, 'r');
-    fs.readSync(fd, buffer, 0, sampleSize, 0);
+    const size = fs.readSync(fd, buffer, 0, sampleSize, 0);
     fs.closeSync(fd);
-
-    return isText(buffer);
+    return isText(buffer.subarray(0, size));
 }
 
 function getMarkdownCodeBlock(fileExt: string): string {
