@@ -42,3 +42,7 @@
 ## [1.1.9] - 2025-05-19
 
 * Support Auto change windows path separator when pasting paths
+
+## [1.1.10] - 2025-05-20
+
+* Fixed isTextFile issue
