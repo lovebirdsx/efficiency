@@ -4,7 +4,7 @@ import * as path from 'path';
 import os from 'os';
 import * as sinon from 'sinon';
 
-import { getFilesToConcat } from '../common/fileMerger';
+import { getFilesToConcat, isText } from '../common/fileMerger';
 
 suite('getFilesToConcat', function () {
     let tempDir: string;
@@ -267,5 +267,22 @@ suite('getFilesToConcat', function () {
 
         assert.strictEqual(files.length, 1);
         assert.ok(files.includes(packageFile));
+    });
+});
+
+suite('isText', function () {
+    test('should return true for text buffers', function () {
+        const textBuffer = Buffer.from('Hello, world!\nThis is a test.');
+        assert.ok(isText(textBuffer));
+    });
+
+    test('should return false for binary buffers', function () {
+        const binaryBuffer = Buffer.from([0x00, 0x01, 0x02, 0x03]);
+        assert.ok(!isText(binaryBuffer));
+    });
+
+    test('bug: chinese characters should be considered text', function () {
+        const textBuffer = Buffer.from('你好，世界！');
+        assert.ok(isText(textBuffer));
     });
 });

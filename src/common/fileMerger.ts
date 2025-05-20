@@ -45,23 +45,45 @@ const extConfig: { [ext: string]: string } = {
     '.env': 'properties',
 };
 
-function isTextFile(path: string, sampleSize = 512): boolean {
-    const buffer = Buffer.alloc(sampleSize);
-    const fd = fs.openSync(path, 'r');
-    const bytesRead = fs.readSync(fd, buffer, 0, sampleSize, 0);
-    fs.closeSync(fd);
-
+export function isText(buff: Buffer): boolean {
     let nonText = 0;
-    for (let i = 0; i < bytesRead; i++) {
-        const byte = buffer[i];
-        // Allow \n, \r, \t and 0x20–0x7E (common visible characters)
-        if (byte === 0x09 || byte === 0x0A || byte === 0x0D) { continue; }
-        if (byte >= 0x20 && byte <= 0x7E) { continue; }
+    for (let i = 0; i < buff.length; i++) {
+        const byte = buff[i];
+
+        // \t \n \r
+        if (byte === 0x09 || byte === 0x0A || byte === 0x0D) {
+            continue;
+        }
+
+        // Allow 0x20–0x7E (printable ASCII characters)
+        if (byte >= 0x20 && byte <= 0x7E) {
+            continue;
+        }
+
+        // Allow all high-bit bytes (UTF-8 multi-byte sequences)
+        if (byte >= 0x80) {
+            continue;
+        }
+
+        // All other bytes are considered non-text
         nonText++;
     }
 
-    // If non-text characters are more than 5% of the total bytes read, consider it a binary file
-    return (nonText / bytesRead) < 0.05;
+    return (nonText / buff.length) < 0.05;
+}
+
+function isTextFile(filePath: string, sampleSize = 512): boolean {
+    const ext = '.' + path.extname(filePath).toLowerCase();
+    if (extConfig[ext]) {
+        return true;
+    }
+
+    const buffer = Buffer.alloc(sampleSize);
+    const fd = fs.openSync(filePath, 'r');
+    fs.readSync(fd, buffer, 0, sampleSize, 0);
+    fs.closeSync(fd);
+
+    return isText(buffer);
 }
 
 function getMarkdownCodeBlock(fileExt: string): string {
