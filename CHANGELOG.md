@@ -58,3 +58,7 @@
 ## [1.1.13] - 2025-05-21
 
 * Support execute shell for selected text
+
+## [1.1.14] - 2025-05-21
+
+* Support `outputBaseDir`
