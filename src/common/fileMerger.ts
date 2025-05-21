@@ -96,6 +96,9 @@ interface ConcatOptions {
 
     /** A list of patterns to ignore during the concatenation process, like .gitignore files. */
     ignores?: string[];
+
+    /** If set, all output file titles will be relative to this directory */
+    outputBaseDir?: string;
 }
 
 interface IgnoreInfo {
@@ -224,7 +227,14 @@ export async function getFilesToConcat(
  */
 export async function concatTextFiles(paths: string[], outputFile: string, options: ConcatOptions = {}): Promise<void> {
     const filesToConcat = await getFilesToConcat(paths, options);
-    const baseDirs = paths.filter(p => fs.statSync(p).isDirectory()).map(p => path.resolve(p).toLocaleLowerCase());
+
+    // If outputBaseDir is set, make it first
+    const baseDirs: string[] = [];
+    if (options.outputBaseDir) {
+        const outputBaseDir = path.resolve(options.outputBaseDir).toLocaleLowerCase();
+        baseDirs.push(outputBaseDir);
+    }
+    baseDirs.push(...paths.filter(p => fs.statSync(p).isDirectory()).map(p => path.resolve(p).toLocaleLowerCase()));
 
     const getHeaderName = (filePath: string): string => {
         const filePathLower = (path.resolve(filePath)).toLocaleLowerCase();
@@ -253,7 +263,6 @@ export async function concatTextFiles(paths: string[], outputFile: string, optio
             }
 
             const writeFile = (filePath: string) => {
-                const fileName = path.basename(filePath);
                 const fileExt = path.extname(filePath).toLowerCase();
                 const lang = getMarkdownCodeBlock(fileExt);
                 outputStream.write(`## ${getHeaderName(filePath)}\n\n\`\`\` ${lang}\n`);

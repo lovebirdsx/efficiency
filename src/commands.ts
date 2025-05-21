@@ -171,6 +171,7 @@ export function generateMarkdownTable() {
 interface IMergeFileOptions {
     type: 'mergeFile';
     paths: string[];
+    outputBaseDir?: string;
     output: string;
     ignoreGit?: boolean;
     includeHidden?: boolean;
@@ -178,14 +179,32 @@ interface IMergeFileOptions {
     shellAfterMerge?: string;
 }
 
-export function createMergeConfig() {
+export async function createMergeConfig() {
     if (!vscode.workspace.workspaceFolders) {
         vscode.window.showInformationMessage('No workspace is opened!');
         return;
     }
 
+    // prompt user to input the file name
+    const defaultFileName = '.efficiency/mergePathsConfig.json';
+    const options: vscode.InputBoxOptions = {
+        prompt: 'Enter the file name',
+        value: defaultFileName,
+        placeHolder: 'File name',
+    };
+
+    const fileName = await vscode.window.showInputBox(options);
+    if (!fileName) {
+        return;
+    }
+
+    if (!fileName.endsWith('.json')) {
+        vscode.window.showInformationMessage('The file name must end with .json!');
+        return;
+    }
+
     const currentWorkspace = vscode.workspace.workspaceFolders![0].uri.fsPath;
-    const filePath = path.join(currentWorkspace, 'mergePathsConfig.json');
+    const filePath = path.join(currentWorkspace, fileName);
 
     if (vscode.workspace.textDocuments.some(doc => doc.fileName === filePath)) {
         vscode.window.showInformationMessage('The file already exists!');
@@ -197,11 +216,21 @@ export function createMergeConfig() {
         return;
     }
 
+    // Create the directory if it doesn't exist
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
     // Create a JSON5 formatted string with comments
     const configContent = `// Merge file configuration
 {
     // Type of operation, must be "mergeFile"
     "type": "mergeFile",
+
+    // Base directory for output files
+    // If set, all output file title will be relative to this directory
+    "outputBaseDir": "",
 
     // Array of paths to merge - can be files or directories
     // Paths can be absolute or relative to the workspace
@@ -212,7 +241,7 @@ export function createMergeConfig() {
     ],
 
     // Output file path - can be absolute or relative to the workspace
-    "output": "",
+    "output": "${fileName.replace('.json', '.md')}",
 
     // Prefix strings to add to combined files
     "prefix": [
@@ -236,16 +265,15 @@ export function createMergeConfig() {
         // Examples:
         // "*.log",        // Ignore all log files
         // "temp*.txt",    // Ignore files starting with temp and ending with .txt
-        // "**/*.test.ts", // Ignore all test files
+        // "**/test/**", // Ignore all test files
     ]
 }`;
 
     fs.writeFileSync(filePath, configContent);
 
     // Open the file in the editor
-    vscode.workspace.openTextDocument(filePath).then(doc => {
-        vscode.window.showTextDocument(doc);
-    });
+    const doc = await vscode.workspace.openTextDocument(filePath);
+    vscode.window.showTextDocument(doc);
 }
 
 /**
@@ -264,7 +292,7 @@ export async function mergePaths() {
     }
 
     try {
-        const options = JSON5.parse(editor.document.getText()) as IMergeFileOptions;
+        const options = JSON5.parse<IMergeFileOptions>(editor.document.getText());
         if (!(options.paths instanceof Array)) {
             vscode.window.showErrorMessage('Invalid paths!');
             return;
@@ -283,7 +311,14 @@ export async function mergePaths() {
             return p;
         });
 
-        const output = path.isAbsolute(options.output) ? options.output : path.join(currentWorkspace, options.output);
+        const output = path.isAbsolute(options.output) ? path.resolve(options.output) : path.join(currentWorkspace, options.output);
+
+        if (options.outputBaseDir) {
+            if (!path.isAbsolute(options.outputBaseDir)) {
+                options.outputBaseDir = path.join(currentWorkspace, options.outputBaseDir);
+            }
+            options.outputBaseDir = path.resolve(options.outputBaseDir);
+        }
 
         await concatTextFiles(paths, output, options);
 

@@ -38,6 +38,31 @@ suite('concatTextFiles', function () {
             '```\n\n');
     });
 
+    test('should title relative to baseOutputDir', async function () {
+        const nestedDir = path.join(tempDir, 'nested');
+        fs.mkdirSync(nestedDir);
+
+        const nestedDir2 = path.join(nestedDir, 'nested2');
+        fs.mkdirSync(nestedDir2);
+
+        const file1 = path.join(nestedDir, 'file1.txt');
+        const file2 = path.join(nestedDir2, 'file2.txt');
+
+        fs.writeFileSync(file1, 'content');
+        fs.writeFileSync(file2, 'content');
+
+        await concatTextFiles([file1, file2], outputFile, { outputBaseDir: nestedDir });
+        const outputContent = fs.readFileSync(outputFile, 'utf-8');
+        assert.strictEqual(fs.existsSync(outputFile), true);
+        assert.strictEqual(outputContent,
+            '## file1.txt\n\n``` text\n' +
+            'content\n' +
+            '```\n\n' +
+            '## nested2/file2.txt\n\n``` text\n' +
+            'content\n' +
+            '```\n\n');
+    });
+
     test('should process directories recursively', async function () {
         const dir = path.join(tempDir, 'dir');
         const subdir = path.join(dir, 'subdir');
