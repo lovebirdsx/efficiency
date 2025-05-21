@@ -22,7 +22,8 @@ Select Text `Name, Age`, Will change to below
 
 ## 3. File Merge
 
-Merge multiple files into one file, which is useful for making context for ask ai.
+* Merge multiple files into one file, which is useful for making context for ask ai.
+* Combine use with this google chrome extension [chatgpt-cli-extension](https://github.com/lovebirdsx/chatgpt-cli-extension) to ask chatgpt with multiple files.
 
 **Settings:**
 
