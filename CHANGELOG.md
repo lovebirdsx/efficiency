@@ -54,3 +54,7 @@
 ## [1.1.12] - 2025-05-21
 
 * Support `shellAfterMerge`
+
+## [1.1.13] - 2025-05-21
+
+* Support execute shell for selected text
