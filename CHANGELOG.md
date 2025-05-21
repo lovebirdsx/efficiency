@@ -50,3 +50,7 @@
 ## [1.1.11] - 2025-05-20
 
 * Fixed isTextFile issue
+
+## [1.1.12] - 2025-05-21
+
+* Support `shellAfterMerge`
