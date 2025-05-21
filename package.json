@@ -27,6 +27,16 @@
             "default": "sh.exe --login -i",
             "description": "Default shell command to open external terminal"
           },
+          "efficiency.openAfterMerge": {
+            "type": "boolean",
+            "default": true,
+            "description": "Open the merged file after merging paths"
+          },
+          "efficiency.shellAfterMerge": {
+            "type": "string",
+            "default": "",
+            "description": "Shell to execute after merging paths. Leave empty to disable. ${file} will be replaced with the merged file path."
+          },
           "efficiency.pastePathConvert.enabled": {
             "type": "boolean",
             "default": true,

@@ -114,6 +114,7 @@ interface IMergeFileOptions {
     ignoreGit?: boolean;
     includeHidden?: boolean;
     ignores?: string[];
+    shellAfterMerge?: string;
 }
 
 export function createMergeConfig() {
@@ -140,7 +141,7 @@ export function createMergeConfig() {
 {
     // Type of operation, must be "mergeFile"
     "type": "mergeFile",
-    
+
     // Array of paths to merge - can be files or directories
     // Paths can be absolute or relative to the workspace
     "paths": [
@@ -148,7 +149,7 @@ export function createMergeConfig() {
         // "src/common",
         // "README.md",
     ],
-    
+
     // Output file path - can be absolute or relative to the workspace
     "output": "",
 
@@ -156,13 +157,19 @@ export function createMergeConfig() {
     "prefix": [
         // "You are a professional software engineer.",
     ],
-    
+
+    // Command to run after merging files
+    // example: "chatgpt-cli sendMessage \${file}"   
+    // \${file} will be replaced with the output file path
+    // If this is set, Efficiency.shellAfterMerge will be ignored
+    "shellAfterMerge": "",
+
     // If true, ignore .gitignore rules (default: false)
     "ignoreGit": false,
-    
+
     // If true, include hidden files starting with '.' (default: false)
     "includeHidden": false,
-    
+
     // Additional patterns to ignore, similar to .gitignore format
     "ignores": [
         // Examples:
@@ -219,8 +226,21 @@ export async function mergePaths() {
 
         await concatTextFiles(paths, output, options);
 
-        const uri = vscode.Uri.file(output);
-        await vscode.commands.executeCommand('vscode.open', uri);
+        const openAfterMerge = vscode.workspace.getConfiguration('efficiency').get<boolean>('openAfterMerge');
+        if (openAfterMerge) {
+            const uri = vscode.Uri.file(output);
+            await vscode.commands.executeCommand('vscode.open', uri);
+        }
+
+        let shellAfterMerge = options.shellAfterMerge;
+        if (!shellAfterMerge) {
+            shellAfterMerge = vscode.workspace.getConfiguration('efficiency').get<string>('shellAfterMerge');
+        }
+
+        if (shellAfterMerge) {
+            const realShell = shellAfterMerge.replace(/\${file}/g, output);
+            spawn(realShell, { detached: true, shell: true }).unref();
+        }
     } catch (error) {
         vscode.window.showErrorMessage('Merge failed: ' + error);
         return;

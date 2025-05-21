@@ -24,6 +24,13 @@ Select Text `Name, Age`, Will change to below
 
 Merge multiple files into one file, which is useful for making context for ask ai.
 
+**Settings:**
+
+* `efficiency.openAfterMerge`: Open the merged file after merging, default is `true`
+* `efficiency.shellAfterMerge`: Shell to execute after merging paths. Leave empty to disable. ${file} will be replaced with the merged file path.
+
+**Commands:**
+
 * `Efficiency: Create Merge Config File`: Create a merge config file for the `Merge Paths To Single File` command.
 * `Efficiency: Merge Paths To Single File`: Merge all paths in the config file to a single file.
 
