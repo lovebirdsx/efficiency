@@ -54,3 +54,18 @@ Automatically change windows path separator when pasting paths.
 **Settings:**
 
 * `efficiency.pastePathConvert.enabled`: Enable auto change path separator when pasting paths, default is `true`
+
+### 4.3. Shell for selected text
+
+Execute shell command for selected text.
+
+* Selected text will first save to a file.
+* The shell command will be executed with the file path (`${selectionFile}`) as an argument.
+
+**Settings:**
+
+* `efficiency.shellForSelectedText`: Shell to execute when selected text. Leave empty to disable. ${selectionFile} will be replaced with the file which contains the selected text.
+
+** Commands:**
+
+* `efficiency.executeShellBySelection`: Execute shell command for selected text.

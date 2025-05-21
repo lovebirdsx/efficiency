@@ -41,6 +41,11 @@
             "type": "boolean",
             "default": true,
             "description": "Automatically converts all `\\` to `/` when pasting Windows paths"
+          },
+          "efficiency.shellForSelection": {
+            "type": "string",
+            "default": "",
+            "description": "Shell to execute when selected text. Leave empty to disable. ${selectionFile} will be replaced with the file which contains the selected text."
           }
         }
       }
@@ -73,6 +78,10 @@
       {
         "command": "efficiency.mergePaths",
         "title": "Efficiency: Merge Paths To Single File"
+      },
+      {
+        "command": "efficiency.executeShellBySelection",
+        "title": "Efficiency: Execute Shell By Selection"
       }
     ]
   },

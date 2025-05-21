@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { spawn } from 'child_process';
 import JSON5 from 'json5';
+import { homedir } from 'os';
 
 import { PunctuationConverter } from './common/punctuationConverter';
 import { Markdown } from './common/markdown';
@@ -36,6 +37,66 @@ export function openExternalShellFromActiveFile() {
 
     const dir = path.dirname(editor.document.uri.fsPath);
     openExternalShellByDir(dir);
+}
+
+function getSelectedText(editor: vscode.TextEditor): string {
+    const document = editor.document;
+    const selection = editor.selection;
+    if (!selection.isEmpty) {
+        return document.getText(selection);
+    }
+
+    // If no text is selected, expand the selection to the nearest non-empty lines
+    let startLine = selection.active.line;
+    while (startLine > 0) {
+        const prevLineText = document.lineAt(startLine - 1).text;
+        if (prevLineText.trim() === '') {
+            break;
+        }
+        startLine--;
+    }
+    
+    let endLine = selection.active.line;
+    while (endLine < document.lineCount - 1) {
+        const nextLineText = document.lineAt(endLine + 1).text;
+        if (nextLineText.trim() === '') {
+            break;
+        }
+        endLine++;
+    }
+
+    const startPos = new vscode.Position(startLine, 0);
+    const endPos = document.lineAt(endLine).range.end;
+    const range = new vscode.Range(startPos, endPos);
+    
+    return document.getText(range);
+}
+
+export function execShellBySelection() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showInformationMessage('No active editor!');
+        return;
+    }
+
+    const shell = vscode.workspace.getConfiguration('efficiency').get<string>('shellForSelection');
+    if (!shell) {
+        vscode.window.showInformationMessage('Please set the shell for selection in the settings!');
+        return;
+    }
+
+    const text = getSelectedText(editor);
+    if (!text) {
+        vscode.window.showInformationMessage('No text selected!');
+        return;
+    }
+
+    // write the selected text to a temporary file
+    const tempFilePath = path.join(homedir(), '.efficiency.selection.txt');
+    fs.writeFileSync(tempFilePath, text);
+
+    const shellWithText = shell.replace(/\${selectionFile}/g, tempFilePath);
+    spawn(shellWithText, { detached: true, shell: true }).unref();
 }
 
 function convert(lang: 'en' | 'zh') {

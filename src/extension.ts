@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { convertToChinesePunctuation, convertToEnglishPunctuation, createMergeConfig, generateMarkdownTable, mergePaths, openExternalShellByWorkspaceFolder, openExternalShellFromActiveFile } from './commands';
+import { convertToChinesePunctuation, convertToEnglishPunctuation, createMergeConfig, execShellBySelection, generateMarkdownTable, mergePaths, openExternalShellByWorkspaceFolder, openExternalShellFromActiveFile } from './commands';
 import { changePathSeparator } from './listenners';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -15,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	registerCommand('efficiency.generateMarkdownTable', generateMarkdownTable);
 	registerCommand('efficiency.createMergeConfig', createMergeConfig);
 	registerCommand('efficiency.mergePaths', mergePaths);
+	registerCommand('efficiency.executeShellBySelection', execShellBySelection);
 
 	function registerListeners(listener: () => { dispose: () => void}) {
 		const disposable = listener();
