@@ -68,3 +68,7 @@
 * Remove Shell for selected text
 * Add Execute Shell Command
 * Add Log output channel
+
+## [1.1.16] - 2025-05-23
+
+* Fix execute shell command issue

@@ -120,7 +120,7 @@ export function execShellCommand(args: { shell: string, silent?: boolean }): voi
     }
 
     shell = replaceShellVariables(shell);
-    const child = spawn(shell, { detached: true, shell: true, windowsHide: args.silent, cwd: getWorkspaceFolder() ?? process.cwd() });
+    const child = spawn(shell, { shell: true, windowsHide: args.silent, cwd: getWorkspaceFolder() ?? process.cwd() });
     info(`Executing shell command: ${shell} silent: ${!!args.silent}`);
 
     child.stdout.on('data', (data: Buffer) => {
