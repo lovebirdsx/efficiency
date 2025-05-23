@@ -62,3 +62,9 @@
 ## [1.1.14] - 2025-05-21
 
 * Support `outputBaseDir`
+
+## [1.1.15] - 2025-05-23
+
+* Remove Shell for selected text
+* Add Execute Shell Command
+* Add Log output channel
