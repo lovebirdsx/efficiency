@@ -48,25 +48,37 @@ Select Text `Name, Age`, Will change to below
 * `efficiency.openExternalShellByWorkspaceFolder`: Open external shell by workspace folder
 * `efficiency.openExternalShellByCurrentFile`: Open external shell by current file
 
-### 4.2. Auto Change Windows Path Separator
+### 4.2. Excute Shell Command
+
+Bind a shell command to a keybinding. like: 
+
+```json
+{
+  "key": "alt+shift+1",
+  "command": "efficiency.execShellCommand",
+  "args": {
+    "silent": true,
+    "shell": "echo ${file}",
+  }
+}
+```
+
+supported variables:
+
+| name                         | description                                  |
+| ---------------------------- | -------------------------------------------- |
+| `${workspaceFolder}`         | The workspace folder of the current file     |
+| `${file}`                    | The current file path                        |
+| `${fileDirname}`             | The current file directory                   |
+| `${fileBasename}`            | The current file name                        |
+| `${fileBasenameNoExtension}` | The current file name without extension      |
+| `${selectionFile}`           | The file which contains the selected text    |
+| `${selection}`               | The selected text or expanded text at cursor |
+
+### 4.3. Auto Change Windows Path Separator
 
 Automatically change windows path separator when pasting paths.
 
 **Settings:**
 
 * `efficiency.pastePathConvert.enabled`: Enable auto change path separator when pasting paths, default is `true`
-
-### 4.3. Shell for selected text
-
-Execute shell command for selected text.
-
-* Selected text will first save to a file.
-* The shell command will be executed with the file path (`${selectionFile}`) as an argument.
-
-**Settings:**
-
-* `efficiency.shellForSelectedText`: Shell to execute when selected text. Leave empty to disable. ${selectionFile} will be replaced with the file which contains the selected text.
-
-** Commands:**
-
-* `efficiency.executeShellBySelection`: Execute shell command for selected text.

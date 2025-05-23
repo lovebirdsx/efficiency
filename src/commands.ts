@@ -8,6 +8,7 @@ import { homedir } from 'os';
 import { PunctuationConverter } from './common/punctuationConverter';
 import { Markdown } from './common/markdown';
 import { concatTextFiles } from './common/fileMerger';
+import { error, info, warn } from './log';
 
 function openExternalShellByDir(dir: string) {
     const shell = vscode.workspace.getConfiguration('efficiency').get('defaultShell') as string;
@@ -19,13 +20,23 @@ function openExternalShellByDir(dir: string) {
     spawn(shell, { cwd: dir, detached: true, shell: true, }).unref();
 }
 
-export function openExternalShellByWorkspaceFolder() {
+function getWorkspaceFolder() {
     if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+        return undefined;
+    }
+
+    const workspaceFolder = vscode.workspace.workspaceFolders[0];
+    return workspaceFolder.uri.fsPath;
+}
+
+export function openExternalShellByWorkspaceFolder() {
+    const workspaceFolder = getWorkspaceFolder();
+    if (!workspaceFolder) {
         vscode.window.showInformationMessage('No workspace is opened!');
         return;
     }
 
-    openExternalShellByDir(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    openExternalShellByDir(workspaceFolder);
 }
 
 export function openExternalShellFromActiveFile() {
@@ -37,6 +48,98 @@ export function openExternalShellFromActiveFile() {
 
     const dir = path.dirname(editor.document.uri.fsPath);
     openExternalShellByDir(dir);
+}
+
+function replaceShellVariables(shell: string): string {
+    if (shell.includes('${workspaceFolder}')) {
+        const workspaceFolder = getWorkspaceFolder();
+        if (workspaceFolder) {
+            shell = shell.replace(/\${workspaceFolder}/g, workspaceFolder);
+        } else {
+            warn('No workspace folder found!');
+        }
+    }
+
+    if (shell.includes('${file}') || shell.includes('${fileDirname}') || shell.includes('${fileBasename}') || shell.includes('${fileBasenameNoExtension}')) {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            if (shell.includes('${file}')) {
+                const file = editor.document.uri.fsPath;
+                shell = shell.replace(/\${file}/g, file);
+            } else if (shell.includes('${fileDirname}')) {
+                const fileDirname = path.dirname(editor.document.uri.fsPath);
+                shell = shell.replace(/\${fileDirname}/g, fileDirname);
+            } else if (shell.includes('${fileBasename}')) {
+                const fileBasename = path.basename(editor.document.uri.fsPath);
+                shell = shell.replace(/\${fileBasename}/g, fileBasename);
+            } else if (shell.includes('${fileBasenameNoExtension}')) {
+                const fileBasenameNoExtension = path.basename(editor.document.uri.fsPath, path.extname(editor.document.uri.fsPath));
+                shell = shell.replace(/\${fileBasenameNoExtension}/g, fileBasenameNoExtension);
+            }
+        } else {
+            warn('No active editor!');
+        }
+    }
+
+    if (shell.includes('${selectionFile}') || shell.includes('${selection}')) {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            warn('No active editor!');
+        } else {
+            const text = getSelectedText(editor);
+            if (!text) {
+                warn('No text selected!');
+            } else {
+                if (shell.includes('${selection}')) {
+                    shell = shell.replace(/\${selection}/g, text);
+                } else {
+                    const tempFilePath = path.join(homedir(), '.efficiency.selection.txt');
+                    fs.writeFileSync(tempFilePath, text);
+            
+                    shell = shell.replace(/\${selectionFile}/g, tempFilePath);
+                }
+            }
+        }
+    }
+
+    return shell;
+}
+
+function removeEmptyLines(data: string): string {
+	return data.replaceAll(/\r\n/g, '\n')
+		.split('\n')
+		.filter((line) => line.trim() !== '')
+		.join('\n');
+}
+
+export function execShellCommand(args: { shell: string, silent?: boolean }): void {
+    let shell = args.shell;
+    if (!shell) {
+        vscode.window.showInformationMessage('Please set the shell command in args');
+        return;
+    }
+
+    shell = replaceShellVariables(shell);
+    const child = spawn(shell, { detached: true, shell: true, windowsHide: args.silent, cwd: getWorkspaceFolder() ?? process.cwd() });
+    info(`Executing shell command: ${shell} silent: ${!!args.silent}`);
+
+    child.stdout.on('data', (data: Buffer) => {
+        info(`Shell output: ${removeEmptyLines(data.toString())}`);
+    });
+
+    child.on('error', (err) => {
+        error(`Shell execution error: ${err.message}`);
+        vscode.window.showErrorMessage(`Shell execution error: ${err.message}`);
+    });
+
+    child.on('exit', (code) => {
+        if (code !== 0) {
+            error(`Shell exited with code: ${code}`);
+            vscode.window.showErrorMessage(`Shell exited with code: ${code}`);
+        } else {
+            info('Shell executed successfully');
+        }
+    });
 }
 
 function getSelectedText(editor: vscode.TextEditor): string {
@@ -55,7 +158,7 @@ function getSelectedText(editor: vscode.TextEditor): string {
         }
         startLine--;
     }
-    
+
     let endLine = selection.active.line;
     while (endLine < document.lineCount - 1) {
         const nextLineText = document.lineAt(endLine + 1).text;
@@ -68,35 +171,8 @@ function getSelectedText(editor: vscode.TextEditor): string {
     const startPos = new vscode.Position(startLine, 0);
     const endPos = document.lineAt(endLine).range.end;
     const range = new vscode.Range(startPos, endPos);
-    
+
     return document.getText(range);
-}
-
-export function execShellBySelection() {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        vscode.window.showInformationMessage('No active editor!');
-        return;
-    }
-
-    const shell = vscode.workspace.getConfiguration('efficiency').get<string>('shellForSelection');
-    if (!shell) {
-        vscode.window.showInformationMessage('Please set the shell for selection in the settings!');
-        return;
-    }
-
-    const text = getSelectedText(editor);
-    if (!text) {
-        vscode.window.showInformationMessage('No text selected!');
-        return;
-    }
-
-    // write the selected text to a temporary file
-    const tempFilePath = path.join(homedir(), '.efficiency.selection.txt');
-    fs.writeFileSync(tempFilePath, text);
-
-    const shellWithText = shell.replace(/\${selectionFile}/g, tempFilePath);
-    spawn(shellWithText, { detached: true, shell: true }).unref();
 }
 
 function convert(lang: 'en' | 'zh') {

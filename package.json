@@ -41,16 +41,15 @@
             "type": "boolean",
             "default": true,
             "description": "Automatically converts all `\\` to `/` when pasting Windows paths"
-          },
-          "efficiency.shellForSelection": {
-            "type": "string",
-            "default": "",
-            "description": "Shell to execute when selected text. Leave empty to disable. ${selectionFile} will be replaced with the file which contains the selected text."
           }
         }
       }
     ],
     "commands": [
+      {
+        "command": "efficiency.showOutput",
+        "title": "Efficiency: Show Output"
+      },
       {
         "command": "efficiency.openExternalShellByWorkspaceFolder",
         "title": "Efficiency: Open External Shell by Workspace Folder"
@@ -58,6 +57,10 @@
       {
         "command": "efficiency.openExternalShellByCurrentFile",
         "title": "Efficiency: Open External Shell by Current File"
+      },
+      {
+        "command": "efficiency.execShellCommand",
+        "title": "Efficiency: Execute Shell Command"
       },
       {
         "command": "efficiency.convertToEnglishPunctuation",
@@ -78,10 +81,6 @@
       {
         "command": "efficiency.mergePaths",
         "title": "Efficiency: Merge Paths To Single File"
-      },
-      {
-        "command": "efficiency.executeShellBySelection",
-        "title": "Efficiency: Execute Shell By Selection"
       }
     ]
   },
