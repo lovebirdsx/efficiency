@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { convertToChinesePunctuation, convertToEnglishPunctuation, createMergeConfig, execShellCommand, generateMarkdownTable, mergePaths, openExternalShellByWorkspaceFolder, openExternalShellFromActiveFile } from './commands';
+import { convertToChinesePunctuation, convertToEnglishPunctuation, createMergeConfig, execShellCommand, generateMarkdownTable, mergePaths, openExternalShellByWorkspaceFolder, openExternalShellFromActiveFile, showCustomShellCommandList } from './commands';
 import { changePathSeparator } from './listenners';
 import { initLog, showOutput } from './log';
 
@@ -15,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	registerCommand('efficiency.openExternalShellByWorkspaceFolder', openExternalShellByWorkspaceFolder);
 	registerCommand('efficiency.openExternalShellByCurrentFile', openExternalShellFromActiveFile);
 	registerCommand('efficiency.execShellCommand', execShellCommand);
+	registerCommand('efficiency.showCustomShellCommandList', () => showCustomShellCommandList(context));
 	registerCommand('efficiency.convertToEnglishPunctuation', convertToEnglishPunctuation);
 	registerCommand('efficiency.convertToChinesePunctuation', convertToChinesePunctuation);
 	registerCommand('efficiency.generateMarkdownTable', generateMarkdownTable);

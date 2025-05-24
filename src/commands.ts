@@ -95,7 +95,7 @@ function replaceShellVariables(shell: string): string {
                 } else {
                     const tempFilePath = path.join(homedir(), '.efficiency.selection.txt');
                     fs.writeFileSync(tempFilePath, text);
-            
+
                     shell = shell.replace(/\${selectionFile}/g, tempFilePath);
                 }
             }
@@ -106,10 +106,10 @@ function replaceShellVariables(shell: string): string {
 }
 
 function removeEmptyLines(data: string): string {
-	return data.replaceAll(/\r\n/g, '\n')
-		.split('\n')
-		.filter((line) => line.trim() !== '')
-		.join('\n');
+    return data.replaceAll(/\r\n/g, '\n')
+        .split('\n')
+        .filter((line) => line.trim() !== '')
+        .join('\n');
 }
 
 export function execShellCommand(args: { shell: string, silent?: boolean }): void {
@@ -120,8 +120,9 @@ export function execShellCommand(args: { shell: string, silent?: boolean }): voi
     }
 
     shell = replaceShellVariables(shell);
-    const child = spawn(shell, { shell: true, windowsHide: args.silent, cwd: getWorkspaceFolder() ?? process.cwd() });
-    info(`Executing shell command: ${shell} silent: ${!!args.silent}`);
+    const cwd = getWorkspaceFolder() ?? process.cwd();
+    const child = spawn(shell, { shell: true, windowsHide: args.silent, cwd });
+    info(`Executing shell command: ${shell} silent: ${!!args.silent} cwd: ${cwd}`);
 
     child.stdout.on('data', (data: Buffer) => {
         info(`Shell output: ${removeEmptyLines(data.toString())}`);
@@ -417,4 +418,45 @@ export async function mergePaths() {
         vscode.window.showErrorMessage('Merge failed: ' + error);
         return;
     }
+}
+
+export async function showCustomShellCommandList(context: vscode.ExtensionContext) {
+    const config = vscode.workspace.getConfiguration('efficiency');
+    const cmds = config.get<{ name: string; description?: string; shell: string; silent?: boolean }[]>('customShellCommands') || [];
+
+    if (cmds.length === 0) {
+        vscode.window.showInformationMessage('Please configure efficiency.customShellCommands in settings first');
+        return;
+    }
+
+    const withTime = cmds.map(cmd => {
+        const key = `efficiency.customShellCommands.lastRun.${cmd.name}`;
+        const last = context.globalState.get<number>(key, 0);
+        return { ...cmd, last };
+    });
+
+    withTime.sort((a, b) => b.last - a.last);
+    
+    const items: vscode.QuickPickItem[] = withTime.map(cmd => ({
+        label: cmd.name,
+        description: cmd.description || '',
+        detail: cmd.shell
+    }));
+
+    const pick = await vscode.window.showQuickPick(items, {
+        placeHolder: 'Select a command to run',
+    });
+
+    if (!pick) {
+        return;
+    }
+
+    const chosen = withTime.find(cmd => cmd.name === pick.label)!;
+    execShellCommand({ shell: chosen.shell, silent: chosen.silent });
+    
+    const now = Date.now();
+    await context.globalState.update(
+        `efficiency.customShellCommands.lastRun.${chosen.name}`,
+        now
+    );
 }

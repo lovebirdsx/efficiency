@@ -11,8 +11,8 @@ Some useful functions for efficiency.
 
 * `Efficiency: Generate Markdown Table`: 
 
-Convert selected text to a Markdown table or generate a default table. eg.
-Select Text `Name, Age`, Will change to below
+Convert selected text to a Markdown table or generate a default table. e.g.,
+Select Text `Name, Age` will change it to the following:
 
 ``` text
 | Name | Age |
@@ -22,18 +22,18 @@ Select Text `Name, Age`, Will change to below
 
 ## 3. File Merge
 
-* Merge multiple files into one file, which is useful for making context for ask ai.
-* Combine use with this google chrome extension [chatgpt-cli-extension](https://github.com/lovebirdsx/chatgpt-cli-extension) to ask chatgpt with multiple files.
+* Merge multiple files into one file, which is useful for providing context for Ask AI.
+* Combined with this Google Chrome extension [chatgpt-cli-extension](https://github.com/lovebirdsx/chatgpt-cli-extension) to query ChatGPT with multiple files.
 
 **Settings:**
 
-* `efficiency.openAfterMerge`: Open the merged file after merging, default is `true`
-* `efficiency.shellAfterMerge`: Shell to execute after merging paths. Leave empty to disable. ${file} will be replaced with the merged file path.
+* `efficiency.openAfterMerge`: Open the merged file after merging; default is `true`
+* `efficiency.shellAfterMerge`: Shell to execute after merging paths. Leave empty to disable. `${file}` will be replaced with the merged file path.
 
 **Commands:**
 
-* `Efficiency: Create Merge Config File`: Create a merge config file for the `Merge Paths To Single File` command.
-* `Efficiency: Merge Paths To Single File`: Merge all paths in the config file to a single file.
+* `Efficiency: Create Merge Config File`: Create a merge configuration file for the `Merge Paths To Single File` command.
+* `Efficiency: Merge Paths To Single File`: Merge all paths in the configuration file into a single file.
 
 ## 4. Misc
 
@@ -41,16 +41,16 @@ Select Text `Name, Age`, Will change to below
 
 **Settings:**
 
-* `efficiency.defaultShell`: Default shell command to open external terminal, default is `sh.exe --login -i`
+* `efficiency.defaultShell`: Default shell command to open an external terminal; default is `sh.exe --login -i`
 
 **Commands:**
 
-* `efficiency.openExternalShellByWorkspaceFolder`: Open external shell by workspace folder
-* `efficiency.openExternalShellByCurrentFile`: Open external shell by current file
+* `efficiency.openExternalShellByWorkspaceFolder`: Open an external shell by workspace folder
+* `efficiency.openExternalShellByCurrentFile`: Open an external shell by current file
 
-### 4.2. Excute Shell Command
+### 4.2. Execute Shell Command
 
-Bind a shell command to a keybinding. like: 
+Bind a shell command to a keybinding, for example:
 
 ```json
 {
@@ -58,27 +58,49 @@ Bind a shell command to a keybinding. like:
   "command": "efficiency.execShellCommand",
   "args": {
     "silent": true,
-    "shell": "echo ${file}",
+    "shell": "echo ${file}"
   }
 }
 ```
 
-supported variables:
+Supported variables:
 
-| name                         | description                                  |
+| Name                         | Description                                  |
 | ---------------------------- | -------------------------------------------- |
 | `${workspaceFolder}`         | The workspace folder of the current file     |
 | `${file}`                    | The current file path                        |
-| `${fileDirname}`             | The current file directory                   |
+| `${fileDirname}`             | The current file’s directory                 |
 | `${fileBasename}`            | The current file name                        |
 | `${fileBasenameNoExtension}` | The current file name without extension      |
 | `${selectionFile}`           | The file which contains the selected text    |
-| `${selection}`               | The selected text or expanded text at cursor |
+| `${selection}`               | The selected text or the text expanded at cursor |
 
 ### 4.3. Auto Change Windows Path Separator
 
-Automatically change windows path separator when pasting paths.
+Automatically change the Windows path separator when pasting paths.
 
 **Settings:**
 
-* `efficiency.pastePathConvert.enabled`: Enable auto change path separator when pasting paths, default is `true`
+* `efficiency.pastePathConvert.enabled`: Enable automatic change of the path separator when pasting paths; default is `true`
+
+### 4.4. Custom Shell Command List
+
+* Configure `efficiency.customShellCommands` in settings. Example:
+
+```jsonc
+"efficiency.customShellCommands": [
+  {
+    "name": "Open Notepad",
+    "description": "Open Notepad",
+    "shell": "notepad.exe",
+    "silent": true
+  },
+  {
+    "name": "Open Shell by Current Workspace Folder",
+    "description": "Open shell by current workspace folder",    
+    "shell": "pwsh.exe -NoLogo -Command \"cd ${workspaceFolder};\"",
+  }
+]
+```
+
+* Run command: `Efficiency: Show Custom Shell Command List`

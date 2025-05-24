@@ -41,6 +41,34 @@
             "type": "boolean",
             "default": true,
             "description": "Automatically converts all `\\` to `/` when pasting Windows paths"
+          },
+          "efficiency.customShellCommands": {
+            "type": "array",
+            "default": [],
+            "description": "List of custom shell commands. Each command should have a name, description, and shell command.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the command"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Description of the command"
+                },
+                "shell": {
+                  "type": "string",
+                  "description": "Shell command to execute"
+                },
+                "silent": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "If true, the command will be executed silently without showing window"
+                }
+              },
+              "required": ["name", "shell"]
+            }
           }
         }
       }
@@ -81,6 +109,10 @@
       {
         "command": "efficiency.mergePaths",
         "title": "Efficiency: Merge Paths To Single File"
+      },
+      {
+        "command": "efficiency.showCustomShellCommandList",
+        "title": "Efficiency: Show Custom Shell Command List"
       }
     ]
   },
