@@ -72,3 +72,7 @@
 ## [1.1.16] - 2025-05-23
 
 * Fix execute shell command issue
+
+## [1.1.17] - 2025-05-24
+
+* Add custom shell command list
