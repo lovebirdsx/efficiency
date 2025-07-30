@@ -76,3 +76,7 @@
 ## [1.1.17] - 2025-05-24
 
 * Add custom shell command list
+
+## [1.1.18] - 2025-07-30
+
+* mergePaths can remember the last used config file
