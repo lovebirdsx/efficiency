@@ -354,22 +354,82 @@ export async function createMergeConfig() {
 }
 
 /**
+ * Check if the current file is a merge configuration file
+ */
+function isMergeConfigFile(document: vscode.TextDocument): boolean {
+    try {
+        const text = document.getText().trim();
+        if (!text) {
+            return false;
+        }
+        
+        const config = JSON5.parse(text);
+        return config.type === 'mergeFile' && Array.isArray(config.paths) && typeof config.output === 'string';
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Find the last used merge configuration file
+ */
+async function findLastUsedMergeConfig(context: vscode.ExtensionContext): Promise<string | undefined> {
+    const lastConfigPath = context.workspaceState.get<string>('efficiency.lastMergeConfigPath');
+    if (lastConfigPath && fs.existsSync(lastConfigPath)) {
+        return lastConfigPath;
+    }
+    return undefined;
+}
+
+/**
+ * Save the current merge configuration file path for future use
+ */
+async function saveLastUsedMergeConfig(context: vscode.ExtensionContext, configPath: string) {
+    await context.workspaceState.update('efficiency.lastMergeConfigPath', configPath);
+}
+
+/**
  * Merge multiple paths into a single output file.
  */
-export async function mergePaths() {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        vscode.window.showInformationMessage('No active editor!');
-        return;
-    }
-
+export async function mergePaths(context?: vscode.ExtensionContext) {
     if (!vscode.workspace.workspaceFolders) {
         vscode.window.showInformationMessage('No workspace is opened!');
         return;
     }
 
+    let configDocument: vscode.TextDocument | undefined;
+    let configPath: string | undefined;
+
+    // First, check if the current active editor contains a merge config file
+    const editor = vscode.window.activeTextEditor;
+    if (editor && isMergeConfigFile(editor.document)) {
+        configDocument = editor.document;
+        configPath = editor.document.uri.fsPath;
+    } else {
+        // If current file is not a config file, try to find the last used config file
+        if (context) {
+            const lastConfigPath = await findLastUsedMergeConfig(context);
+            if (lastConfigPath) {
+                try {
+                    configDocument = await vscode.workspace.openTextDocument(lastConfigPath);
+                    configPath = lastConfigPath;
+                    info(`Using last used merge config: ${lastConfigPath}`);
+                } catch (error) {
+                    warn(`Failed to open last used config file: ${lastConfigPath}. ${error}`);
+                }
+            }
+        }
+
+        // If still no config file found, show an error message
+        if (!configDocument) {
+            const message = 'No merge configuration file found. Please open a merge config file or create one using "Efficiency: Create Merge Config File" command.';
+            vscode.window.showErrorMessage(message);
+            return;
+        }
+    }
+
     try {
-        const options = JSON5.parse<IMergeFileOptions>(editor.document.getText());
+        const options = JSON5.parse<IMergeFileOptions>(configDocument.getText());
         if (!(options.paths instanceof Array)) {
             vscode.window.showErrorMessage('Invalid paths!');
             return;
@@ -378,6 +438,11 @@ export async function mergePaths() {
         if (typeof options.output !== 'string') {
             vscode.window.showErrorMessage('Invalid output!');
             return;
+        }
+
+        // Save the current config path for future use
+        if (context && configPath) {
+            await saveLastUsedMergeConfig(context, configPath);
         }
 
         const currentWorkspace = vscode.workspace.workspaceFolders![0].uri.fsPath;

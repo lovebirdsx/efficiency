@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 	registerCommand('efficiency.convertToChinesePunctuation', convertToChinesePunctuation);
 	registerCommand('efficiency.generateMarkdownTable', generateMarkdownTable);
 	registerCommand('efficiency.createMergeConfig', createMergeConfig);
-	registerCommand('efficiency.mergePaths', mergePaths);
+	registerCommand('efficiency.mergePaths', () => mergePaths(context));
 
 	function registerListeners(listener: () => { dispose: () => void}) {
 		const disposable = listener();
