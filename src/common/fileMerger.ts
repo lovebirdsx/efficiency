@@ -165,7 +165,7 @@ export async function getFilesToConcat(
     /**
      * Recursively process a path (file or directory) and collect eligible text files.
      */
-    async function processPath(p: string): Promise<string[]> {
+    async function processPath(p: string, isExplicitPath = false): Promise<string[]> {
         const absPath = path.resolve(p);
         let stats: fs.Stats;
         try {
@@ -176,7 +176,9 @@ export async function getFilesToConcat(
         }
 
         const name = path.basename(absPath);
-        if (!includeHidden && name.startsWith('.')) {
+        // Keep backward-compatible behavior for discovered children, but allow
+        // explicitly configured paths like ".github".
+        if (!includeHidden && !isExplicitPath && name.startsWith('.')) {
             return [];
         }
 
@@ -194,7 +196,7 @@ export async function getFilesToConcat(
         if (stats.isDirectory()) {
             const entries = await fs.promises.readdir(absPath);
             const nested = await Promise.all(
-                entries.map(entry => processPath(path.join(absPath, entry)))
+                entries.map(entry => processPath(path.join(absPath, entry), false))
             );
             return nested.flat();
         } else if (stats.isFile()) {
@@ -207,7 +209,7 @@ export async function getFilesToConcat(
         return [];
     }
 
-    const all = await Promise.all(paths.map(p => processPath(p)));
+    const all = await Promise.all(paths.map(p => processPath(p, true)));
 
     // Deduplicate results
     const unique = Array.from(new Set(all.flat()));

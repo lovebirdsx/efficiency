@@ -74,6 +74,30 @@ suite('getFilesToConcat', function () {
         assert.ok(files.includes(hiddenFile));
     });
 
+    test('should include explicitly configured hidden directory by default', async function () {
+        const hiddenDir = path.join(tempDir, '.github');
+        const hiddenFile = path.join(hiddenDir, 'workflows.yml');
+        const normalFile = path.join(tempDir, 'normal.txt');
+
+        fs.mkdirSync(hiddenDir, { recursive: true });
+        fs.writeFileSync(hiddenFile, 'name: ci');
+        fs.writeFileSync(normalFile, 'content');
+
+        const files = await getFilesToConcat([hiddenDir]);
+        assert.strictEqual(files.length, 1);
+        assert.ok(files.includes(hiddenFile));
+        assert.ok(!files.includes(normalFile));
+    });
+
+    test('should include explicitly configured hidden file by default', async function () {
+        const hiddenFile = path.join(tempDir, '.env');
+        fs.writeFileSync(hiddenFile, 'A=1');
+
+        const files = await getFilesToConcat([hiddenFile]);
+        assert.strictEqual(files.length, 1);
+        assert.ok(files.includes(hiddenFile));
+    });
+
     test('should process nested directories', async function () {
         const nestedDir = path.join(tempDir, 'nested');
         fs.mkdirSync(nestedDir);
