@@ -8,6 +8,7 @@ import { homedir } from 'os';
 import { PunctuationConverter } from './common/punctuationConverter';
 import { Markdown } from './common/markdown';
 import { concatTextFiles } from './common/fileMerger';
+import { collectAllChanges, openChange } from './common/gitChanges';
 import { error, info, warn } from './log';
 
 function openExternalShellByDir(dir: string) {
@@ -524,4 +525,32 @@ export async function showCustomShellCommandList(context: vscode.ExtensionContex
         `efficiency.customShellCommands.lastRun.${chosen.name}`,
         now
     );
+}
+
+async function navigateChange(direction: 1 | -1): Promise<void> {
+    const changes = await collectAllChanges();
+    if (changes.length === 0) {
+        vscode.window.showInformationMessage('No source control changes to navigate.');
+        return;
+    }
+
+    const activeUri = vscode.window.activeTextEditor?.document.uri;
+    let currentIndex = -1;
+    if (activeUri) {
+        currentIndex = changes.findIndex(c => c.uri.fsPath === activeUri.fsPath);
+    }
+
+    const nextIndex = currentIndex === -1
+        ? (direction === 1 ? 0 : changes.length - 1)
+        : (currentIndex + direction + changes.length) % changes.length;
+
+    await openChange(changes[nextIndex].uri);
+}
+
+export function openNextChangeDiff(): Promise<void> {
+    return navigateChange(1);
+}
+
+export function openPreviousChangeDiff(): Promise<void> {
+    return navigateChange(-1);
 }

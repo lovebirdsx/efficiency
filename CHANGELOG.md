@@ -1,5 +1,17 @@
 # Change Log
 
+## [1.1.21] - 2026-05-26
+
+### Added
+
+* Source Control change navigation: new commands `Efficiency: Open Next Change Diff` and `Efficiency: Open Previous Change Diff` cycle through all changed files (Merge / Staged / Changes / Untracked) in the active Git repositories. Default keybindings: `Ctrl+Alt+PageDown` / `Ctrl+Alt+PageUp`.
+
+## [1.1.20] - 2026-03-10
+
+### Changed
+
+* Excluded `.efficiency/**` from the published extension package via `.vscodeignore`.
+
 ## [1.1.19] - 2026-03-10
 
 ### Fixed

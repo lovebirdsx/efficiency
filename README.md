@@ -104,3 +104,21 @@ Automatically change the Windows path separator when pasting paths.
 ```
 
 * Run command: `Efficiency: Show Custom Shell Command List`
+
+## 5. Source Control Change Navigation
+
+Quickly jump between modified files in the Source Control panel without using the mouse. Works with VS Code's built-in Git extension and covers all change groups: Merge Changes, Staged Changes, Changes (modified working-tree files), and Untracked files. Navigation wraps around when you reach either end of the list.
+
+**Commands:**
+
+* `Efficiency: Open Next Change Diff`: Open the diff view of the next changed file
+* `Efficiency: Open Previous Change Diff`: Open the diff view of the previous changed file
+
+**Default keybindings:**
+
+| Key                  | Command                                  |
+| -------------------- | ---------------------------------------- |
+| `Ctrl+Alt+PageDown`  | `efficiency.openNextChangeDiff`          |
+| `Ctrl+Alt+PageUp`    | `efficiency.openPreviousChangeDiff`      |
+
+The "current file" is determined from the active editor; if the active file is not in the change list, *Next* starts from the first change and *Previous* starts from the last.

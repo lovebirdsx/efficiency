@@ -113,6 +113,24 @@
       {
         "command": "efficiency.showCustomShellCommandList",
         "title": "Efficiency: Show Custom Shell Command List"
+      },
+      {
+        "command": "efficiency.openNextChangeDiff",
+        "title": "Efficiency: Open Next Change Diff"
+      },
+      {
+        "command": "efficiency.openPreviousChangeDiff",
+        "title": "Efficiency: Open Previous Change Diff"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "efficiency.openNextChangeDiff",
+        "key": "ctrl+alt+pagedown"
+      },
+      {
+        "command": "efficiency.openPreviousChangeDiff",
+        "key": "ctrl+alt+pageup"
       }
     ]
   },
