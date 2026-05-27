@@ -554,3 +554,80 @@ export function openNextChangeDiff(): Promise<void> {
 export function openPreviousChangeDiff(): Promise<void> {
     return navigateChange(-1);
 }
+
+const THIRD_PARTY_MD_PREVIEW_EXTENSIONS: { extensionId: string; command: string }[] = [
+    { extensionId: 'shd101wyy.markdown-preview-enhanced', command: 'markdown-preview-enhanced.openPreview' },
+];
+
+function pickMarkdownPreviewCommand(): string {
+    for (const { extensionId, command } of THIRD_PARTY_MD_PREVIEW_EXTENSIONS) {
+        if (vscode.extensions.getExtension(extensionId)) {
+            return command;
+        }
+    }
+    return 'markdown.showPreview';
+}
+
+function formatRelativeTime(ms: number): string {
+    const diff = Date.now() - ms;
+    if (diff < 0) {
+        return new Date(ms).toLocaleString();
+    }
+    const sec = Math.floor(diff / 1000);
+    if (sec < 60) { return 'just now'; }
+    const min = Math.floor(sec / 60);
+    if (min < 60) { return `${min} minute${min === 1 ? '' : 's'} ago`; }
+    const hour = Math.floor(min / 60);
+    if (hour < 24) { return `${hour} hour${hour === 1 ? '' : 's'} ago`; }
+    const day = Math.floor(hour / 24);
+    if (day < 30) { return `${day} day${day === 1 ? '' : 's'} ago`; }
+    return new Date(ms).toLocaleDateString();
+}
+
+export async function showClaudePlans(): Promise<void> {
+    const plansDir = path.join(homedir(), '.claude', 'plans');
+
+    if (!fs.existsSync(plansDir)) {
+        vscode.window.showInformationMessage(`Claude plans directory not found: ${plansDir}`);
+        return;
+    }
+
+    const entries = await fs.promises.readdir(plansDir, { withFileTypes: true });
+    const mdFiles = await Promise.all(
+        entries
+            .filter(e => e.isFile() && e.name.toLowerCase().endsWith('.md'))
+            .map(async e => {
+                const full = path.join(plansDir, e.name);
+                const stat = await fs.promises.stat(full);
+                return { name: e.name, full, mtime: stat.mtimeMs };
+            })
+    );
+
+    if (mdFiles.length === 0) {
+        vscode.window.showInformationMessage('No Claude plan files found.');
+        return;
+    }
+
+    mdFiles.sort((a, b) => b.mtime - a.mtime);
+
+    const items: vscode.QuickPickItem[] = mdFiles.map(f => ({
+        label: f.name.replace(/\.md$/i, ''),
+        description: formatRelativeTime(f.mtime),
+        detail: f.full,
+    }));
+
+    const pick = await vscode.window.showQuickPick(items, {
+        placeHolder: 'Select a Claude plan to preview',
+        matchOnDescription: true,
+        matchOnDetail: true,
+    });
+    if (!pick) {
+        return;
+    }
+
+    const uri = vscode.Uri.file(pick.detail!);
+    const previewCommand = pickMarkdownPreviewCommand();
+
+    const doc = await vscode.workspace.openTextDocument(uri);
+    await vscode.commands.executeCommand(previewCommand, uri);
+}

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { convertToChinesePunctuation, convertToEnglishPunctuation, createMergeConfig, execShellCommand, generateMarkdownTable, mergePaths, openExternalShellByWorkspaceFolder, openExternalShellFromActiveFile, openNextChangeDiff, openPreviousChangeDiff, showCustomShellCommandList } from './commands';
+import { convertToChinesePunctuation, convertToEnglishPunctuation, createMergeConfig, execShellCommand, generateMarkdownTable, mergePaths, openExternalShellByWorkspaceFolder, openExternalShellFromActiveFile, openNextChangeDiff, openPreviousChangeDiff, showClaudePlans, showCustomShellCommandList } from './commands';
 import { changePathSeparator } from './listenners';
 import { initLog, showOutput } from './log';
 
@@ -23,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 	registerCommand('efficiency.mergePaths', () => mergePaths(context));
 	registerCommand('efficiency.openNextChangeDiff', openNextChangeDiff);
 	registerCommand('efficiency.openPreviousChangeDiff', openPreviousChangeDiff);
+	registerCommand('efficiency.showClaudePlans', showClaudePlans);
 
 	function registerListeners(listener: () => { dispose: () => void}) {
 		const disposable = listener();

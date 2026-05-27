@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.22] - 2026-05-27
+
+### Added
+
+* Claude Plans browser: new command `Efficiency: Show Claude Plans` lists `.md` plan files in `~/.claude/plans/` ordered by modification time (newest first) via QuickPick, and opens the selected one in Markdown Preview. Uses a third-party Markdown preview extension (e.g. Markdown Preview Enhanced) when available, otherwise falls back to the built-in preview.
+
 ## [1.1.21] - 2026-05-26
 
 ### Added

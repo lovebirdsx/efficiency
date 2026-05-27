@@ -2,7 +2,7 @@
   "name": "efficiency",
   "displayName": "Efficiency",
   "description": "Tools to improve your efficiency",
-  "version": "1.1.21",
+  "version": "1.1.22",
   "publisher": "lovebird",
   "icon": "images/efficiency.png",
   "repository": {
@@ -121,6 +121,10 @@
       {
         "command": "efficiency.openPreviousChangeDiff",
         "title": "Efficiency: Open Previous Change Diff"
+      },
+      {
+        "command": "efficiency.showClaudePlans",
+        "title": "Efficiency: Show Claude Plans"
       }
     ],
     "keybindings": [
