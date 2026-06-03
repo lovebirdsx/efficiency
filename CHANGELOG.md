@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.23] - 2026-06-03
+
+### Added
+
+* Markdown todo state toggle: new command `Efficiency: Toggle Markdown Todo State` cycles a `* [ ] task` line through three states — initial (`* [ ] task`), in-progress (`* [ ] * task`), and done (`* [x] * task`). Works on the cursor line or all selected lines; non-todo lines are left unchanged.
+
 ## [1.1.22] - 2026-05-27
 
 ### Added

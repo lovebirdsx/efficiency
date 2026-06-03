@@ -631,3 +631,51 @@ export async function showClaudePlans(): Promise<void> {
     const doc = await vscode.workspace.openTextDocument(uri);
     await vscode.commands.executeCommand(previewCommand, uri);
 }
+
+export function toggleMarkdownTodoState() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+
+    const document = editor.document;
+    const selection = editor.selection;
+    const startLine = selection.isEmpty ? selection.active.line : selection.start.line;
+    const endLine = selection.isEmpty ? selection.active.line : selection.end.line;
+
+    // Regex order: in-progress must be checked before initial (both have `[ ]`)
+    // Supports both `*` and `-` bullet styles
+    const inProgressRe = /^(\s*[*-]\s+)\[ \]\s+\*\s+(.+)$/;
+    const doneRe = /^(\s*[*-]\s+)\[x\]\s+(.+)$/;
+    const initialRe = /^(\s*[*-]\s+)\[ \]\s+(?!\*\s)(.+)$/;
+
+    editor.edit(editBuilder => {
+        for (let i = startLine; i <= endLine; i++) {
+            const line = document.lineAt(i);
+            const text = line.text;
+            let newText: string | undefined;
+
+            let m = inProgressRe.exec(text);
+            if (m) {
+                // in-progress → done
+                newText = `${m[1]}[x] ${m[2]}`;
+            } else {
+                m = doneRe.exec(text);
+                if (m) {
+                    // done → initial
+                    newText = `${m[1]}[ ] ${m[2]}`;
+                } else {
+                    m = initialRe.exec(text);
+                    if (m) {
+                        // initial → in-progress
+                        newText = `${m[1]}[ ] * ${m[2]}`;
+                    }
+                }
+            }
+
+            if (newText !== undefined) {
+                editBuilder.replace(line.range, newText);
+            }
+        }
+    });
+}

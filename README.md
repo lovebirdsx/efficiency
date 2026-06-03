@@ -20,6 +20,18 @@ Select Text `Name, Age` will change it to the following:
 |      |     |
 ```
 
+* `Efficiency: Toggle Markdown Todo State`:
+
+Cycles a Markdown todo item through three states. Place the cursor on a todo line (or select multiple lines) and run the command repeatedly:
+
+| State | Format |
+| --- | --- |
+| Initial | `* [ ] task` |
+| In-progress | `* [ ] * task` |
+| Done | `* [x] task` |
+
+Both `*` and `-` bullet styles are supported. Lines that do not match the todo format are left unchanged.
+
 ## 3. File Merge
 
 * Merge multiple files into one file, which is useful for providing context for Ask AI.
